@@ -21,3 +21,14 @@ if astronvim.default_colorscheme then
 end
 
 require("astronvim.utils").conditional_func(astronvim.user_opts("polish", nil, false), true)
+
+
+-- 激活我的 vim file
+local git_vim_path = vim.api.nvim_get_runtime_file("vim/git.vim", false)[1]
+if git_vim_path then
+    vim.cmd("source " .. git_vim_path)
+end
+local vimrc_path = "~/.vimrc"
+if vim.fn.filereadable(vimrc_path) == 1 then
+    vim.cmd("source " .. vimrc_path)
+end
