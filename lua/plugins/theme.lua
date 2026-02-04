@@ -14,6 +14,6 @@ return {
   },
   {
     "AstroNvim/astroui",
-    opts = function(_, opts) opts.colorscheme = "github_light" end,
+    opts = function(_, opts) opts.colorscheme = "flexoki-light" end,
   },
 }
