@@ -5,7 +5,10 @@ return {
     event = "InsertEnter",
     opts = {
       filetypes = {
+        yaml = true,
         markdown = true,
+        toml = true,
+        gitcommit = true,
       },
       suggestion = {
         enabled = true,
