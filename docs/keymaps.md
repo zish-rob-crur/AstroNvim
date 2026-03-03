@@ -26,13 +26,18 @@
 
 ## 文件/搜索（Telescope）
 
+- `<C-p>` / `<D-p>`：Quick Open（类似 VSCode `Ctrl/Cmd + P`，搜索并打开文件）
+- `<C-S-p>` / `<D-S-p>`：Command Palette（命令搜索）
 - `<Leader>ff`：Find files
 - `<Leader>fF`：Find all files
 - `<Leader>fw`：Find words（项目内全文搜索）
 - `<Leader>f/`：Find words in current buffer（当前文件搜索）
 - `<Leader>fb`：Find buffers
+- `<Leader>fp`：Quick switch buffers（快速切换已打开文件）
 - `<Leader>fh`：Find help
 - `<Leader>f<CR>`：Resume previous search
+
+提示：`<D-*>`（Cmd）映射通常只在 GUI Neovim（如 Neovide）或你已配置终端转发 Cmd 键时可用；纯终端里更稳的是 `<C-*>` 版本。
 
 ## 代码结构 / 诊断（导航常用）
 
@@ -66,9 +71,20 @@
 ## 其它常用
 
 - `<Leader>e`：Neo-tree 文件树开关
+- `<Leader>o`：在 Neo-tree 与上一个编辑窗口之间切换焦点
 - `<Leader>w`：保存
 - `<Leader>q`：退出当前窗口
 - `<Leader>h`：回到 Home Screen（Dashboard）
 - `<Leader>Ss`：保存 session；`<Leader>Sl`：加载上次 session
 - `<Leader>tf` / `<Leader>th` / `<Leader>tv`：ToggleTerm（浮窗/水平/竖直）
 - `<Leader>gg`：lazygit（ToggleTerm）
+
+### Neo-tree（文件树内常用）
+
+- `<CR>`：在当前窗口打开文件/目录
+- `l`：进入目录（已展开则进到第一个子项）；在文件上等价于打开文件
+- `h`：收起当前目录；若已收起则回到父目录
+- `s` / `S`：垂直分屏 / 水平分屏打开文件
+- `t`：在新标签页打开文件
+- `w`：用 window picker 选择目标窗口再打开
+- `q`：关闭 Neo-tree 窗口
