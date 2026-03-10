@@ -30,6 +30,7 @@
 - `<C-S-p>` / `<D-S-p>`：Command Palette（命令搜索）
 - `<Leader>ff`：Find files
 - `<Leader>fF`：Find all files
+- `<Leader>fo`：在访达打开当前文件所在目录（未保存文件则打开当前工作目录）
 - `<Leader>fw`：Find words（项目内全文搜索）
 - `<Leader>f/`：Find words in current buffer（当前文件搜索）
 - `<Leader>fb`：Find buffers
@@ -78,6 +79,16 @@
 - `<Leader>Ss`：保存 session；`<Leader>Sl`：加载上次 session
 - `<Leader>tf` / `<Leader>th` / `<Leader>tv`：ToggleTerm（浮窗/水平/竖直）
 - `<Leader>gg`：lazygit（ToggleTerm）
+- `<Leader>tw`：在终端里用 `w3m` 打开网页（先输入 URL）
+- `<Leader>tW`：在终端里用 `w3m` 打开光标下 URL
+
+## Markdown
+
+- `<Leader>mp`：打开 `render-markdown` 侧边预览
+- `<Leader>mb`：直接打开浏览器 Markdown 预览
+- `<Leader>mm`：切换浏览器 Markdown 预览（支持 Mermaid）
+- `<Leader>mo`：打开/关闭 Markdown 标题导航（Aerial 侧栏，基于 `#` / `##` / `###` 层级）
+- `]m` / `[m`：跳到下一个 / 上一个 Markdown 标题
 
 ### Neo-tree（文件树内常用）
 
