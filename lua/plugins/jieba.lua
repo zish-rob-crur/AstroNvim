@@ -1,8 +1,27 @@
+local function resolve_python3_host()
+  local nvim_python = vim.fn.expand "~/.local/share/nvim/python3/bin/python3"
+  if vim.fn.executable(nvim_python) == 1 then return nvim_python end
+
+  return vim.fn.exepath "python3"
+end
+
+local function has_python3_provider()
+  if vim.g.loaded_python3_provider == 0 then return false end
+
+  if vim.g.python3_host_prog == nil then
+    local python3 = resolve_python3_host()
+    if python3 ~= "" then vim.g.python3_host_prog = python3 end
+  end
+
+  return vim.fn.has "python3" == 1
+end
+
 return {
   {
     "kkew3/jieba.vim",
     branch = "main",
     ft = { "markdown", "text" },
+    cond = has_python3_provider,
     config = function()
       local group = vim.api.nvim_create_augroup("jieba_vim_markdown_text", { clear = true })
 
