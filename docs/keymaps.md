@@ -10,10 +10,14 @@
 
 ## 跳转导航（重点）
 
-### Flash（当前文件内快速跳转）
+### Flash（快速跳转 / 搜索 / 远程操作）
 
 - `s`：Flash 跳转（输入 1–2 个字符 → 选标签跳过去）
 - `S`：Flash 语法树跳转（按 Treesitter 语法节点跳）
+- `yr` / `dr` / `cr`：先进入 yank / delete / change，再用 Flash 远程选目标
+- `yR` / `dR`：按 Treesitter 语法结构复制 / 删除
+- `/` 或 `?` 搜索时：默认启用 Flash 标签
+- 命令行搜索时 `<C-s>`：切换 Flash 搜索标签开关
 
 提示：Flash 会覆盖 Vim 原生的 `s`/`S`（替代用法：`cl` ≈ 原 `s`，`cc` ≈ 原 `S`）。
 
@@ -37,6 +41,7 @@
 - `<Leader>fp`：Quick switch buffers（快速切换已打开文件）
 - `<Leader>fh`：Find help
 - `<Leader>f<CR>`：Resume previous search
+- Telescope 结果列表里 `s`（普通模式）/ `<C-s>`（插入模式）：Flash 结果内跳转
 
 提示：`<D-*>`（Cmd）映射通常只在 GUI Neovim（如 Neovide）或你已配置终端转发 Cmd 键时可用；纯终端里更稳的是 `<C-*>` 版本。
 
@@ -88,6 +93,7 @@
 - `<Leader>mb`：直接打开浏览器 Markdown 预览
 - `<Leader>mm`：切换浏览器 Markdown 预览（支持 Mermaid）
 - `<Leader>mo`：打开/关闭 Markdown 标题导航（Aerial 侧栏，基于 `#` / `##` / `###` 层级）
+- `<Leader>jj`：切换当前 buffer 的中文跳词模式；开启后 `w` / `b` / `e` / `ge` 按中文词移动
 - `]m` / `[m`：跳到下一个 / 上一个 Markdown 标题
 
 ### Neo-tree（文件树内常用）

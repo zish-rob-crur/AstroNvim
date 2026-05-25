@@ -2,7 +2,13 @@ return {
   {
     "folke/flash.nvim",
     event = "VeryLazy",
-    opts = {},
+    opts = {
+      modes = {
+        search = {
+          enabled = true,
+        },
+      },
+    },
     keys = {
       { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash 跳转" },
       { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash 语法树跳转" },
@@ -10,6 +16,39 @@ return {
       { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Flash 语法树搜索" },
       { "<C-s>", mode = "c", function() require("flash").toggle() end, desc = "Flash 切换搜索" },
     },
+  },
+  {
+    "nvim-telescope/telescope.nvim",
+    optional = true,
+    opts = function(_, opts)
+      local function flash_in_telescope(prompt_bufnr)
+        require("flash").jump({
+          pattern = "^",
+          label = { after = { 0, 0 } },
+          search = {
+            mode = "search",
+            exclude = {
+              function(win)
+                return vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= "TelescopeResults"
+              end,
+            },
+          },
+          action = function(match)
+            local picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
+            picker:set_selection(match.pos[1] - 1)
+          end,
+        })
+      end
+
+      opts.defaults = vim.tbl_deep_extend("force", opts.defaults or {}, {
+        mappings = {
+          n = { s = flash_in_telescope },
+          i = { ["<C-s>"] = flash_in_telescope },
+        },
+      })
+
+      return opts
+    end,
   },
   {
     "ThePrimeagen/harpoon",
@@ -37,4 +76,3 @@ return {
     end,
   },
 }
-
