@@ -9,35 +9,13 @@ return {
   -- == Examples of Adding Plugins ==
 
   "andweeb/presence.nvim",
-  {
-    "ray-x/lsp_signature.nvim",
-    event = "BufRead",
-    config = function() require("lsp_signature").setup() end,
-  },
+  { "ray-x/lsp_signature.nvim", enabled = false },
 
   -- == Examples of Overriding Plugins ==
 
-  -- customize alpha options
-  {
-    "goolord/alpha-nvim",
-    opts = function(_, opts)
-      -- customize the dashboard header
-      opts.section.header.val = {
-        " █████  ███████ ████████ ██████   ██████",
-        "██   ██ ██         ██    ██   ██ ██    ██",
-        "███████ ███████    ██    ██████  ██    ██",
-        "██   ██      ██    ██    ██   ██ ██    ██",
-        "██   ██ ███████    ██    ██   ██  ██████",
-        " ",
-        "    ███    ██ ██    ██ ██ ███    ███",
-        "    ████   ██ ██    ██ ██ ████  ████",
-        "    ██ ██  ██ ██    ██ ██ ██ ████ ██",
-        "    ██  ██ ██  ██  ██  ██ ██  ██  ██",
-        "    ██   ████   ████   ██ ██      ██",
-      }
-      return opts
-    end,
-  },
+  -- AstroNvim v6 uses snacks.nvim for the dashboard; keep the old alpha.nvim
+  -- template example disabled so it does not run incompatible v4 options.
+  { "goolord/alpha-nvim", enabled = false },
 
   -- You can disable default plugins as follows:
   { "max397574/better-escape.nvim", enabled = false },

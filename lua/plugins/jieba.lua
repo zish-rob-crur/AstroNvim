@@ -16,21 +16,52 @@ local jieba_motions = {
   gE = "<Plug>(Jieba_gE)",
 }
 
-local function resolve_python3_host()
-  local nvim_python = vim.fn.expand "~/.local/share/nvim/python3/bin/python3"
-  if vim.fn.executable(nvim_python) == 1 then return nvim_python end
+local python3_venv = vim.fn.stdpath "data" .. "/python3"
+local python3_host = python3_venv .. "/bin/python3"
 
-  return vim.fn.exepath "python3"
+if vim.fn.executable(python3_host) == 1 then vim.g.python3_host_prog = python3_host end
+
+local function run(cmd)
+  local result = vim.system(cmd, { text = true }):wait()
+  if result.code == 0 then return end
+
+  error(
+    ("command failed: %s\n%s%s"):format(table.concat(cmd, " "), result.stdout or "", result.stderr or "")
+  )
+end
+
+local function can_import(python, module)
+  if python == "" or vim.fn.executable(python) ~= 1 then return false end
+
+  local result = vim.system({ python, "-c", ("import %s"):format(module) }, { text = true }):wait()
+  return result.code == 0
+end
+
+local function ensure_python3_host()
+  if vim.fn.executable(python3_host) ~= 1 then
+    local python3 = vim.fn.exepath "python3"
+    if python3 == "" then error "python3 is required by jieba.vim" end
+
+    run { python3, "-m", "venv", python3_venv }
+  end
+
+  if not can_import(python3_host, "pynvim") then
+    run { python3_host, "-m", "pip", "install", "--upgrade", "pip", "pynvim" }
+  end
 end
 
 local function has_python3_provider()
   if vim.g.loaded_python3_provider == 0 then return false end
 
-  if vim.g.python3_host_prog == nil then
-    local python3 = resolve_python3_host()
-    if python3 ~= "" then vim.g.python3_host_prog = python3 end
+  local ok, err = pcall(ensure_python3_host)
+  if not ok then
+    vim.schedule(function()
+      vim.notify(("jieba.vim disabled: %s"):format(err), vim.log.levels.WARN)
+    end)
+    return false
   end
 
+  vim.g.python3_host_prog = python3_host
   return vim.fn.has "python3" == 1
 end
 
@@ -83,6 +114,7 @@ return {
   {
     "kkew3/jieba.vim",
     branch = "main",
+    build = ensure_python3_host,
     cond = has_python3_provider,
     cmd = { "JiebaInit", "JiebaPreviewCancel", "JiebaToggle" },
     keys = {

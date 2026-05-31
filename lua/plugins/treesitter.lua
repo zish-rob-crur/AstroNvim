@@ -1,15 +1,29 @@
 -- if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
 
 -- Customize Treesitter
+-- --------------------
+-- AstroNvim v6 handles parser configuration through AstroCore.
 
 ---@type LazySpec
 return {
-  "nvim-treesitter/nvim-treesitter",
+  "AstroNvim/astrocore",
+  ---@type AstroCoreOpts
   opts = {
-    ensure_installed = {
-      "lua",
-      "vim",
-      -- add more arguments for adding more treesitter parsers
+    treesitter = {
+      highlight = true,
+      indent = true,
+      auto_install = true,
+      ensure_installed = {
+        "bash",
+        "c",
+        "lua",
+        "markdown",
+        "markdown_inline",
+        "python",
+        "query",
+        "vim",
+        "vimdoc",
+      },
     },
   },
 }

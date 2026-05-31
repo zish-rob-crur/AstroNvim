@@ -98,18 +98,6 @@ return {
     end,
   },
   {
-    "nvim-treesitter/nvim-treesitter",
-    optional = true,
-    opts = function(_, opts)
-      if opts.ensure_installed == "all" then return end
-
-      opts.ensure_installed = opts.ensure_installed or {}
-      for _, parser in ipairs { "markdown", "markdown_inline" } do
-        if not vim.tbl_contains(opts.ensure_installed, parser) then table.insert(opts.ensure_installed, parser) end
-      end
-    end,
-  },
-  {
     "AstroNvim/astrocore",
     optional = true,
     opts = function(_, opts)
