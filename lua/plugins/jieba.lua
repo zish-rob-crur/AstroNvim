@@ -69,6 +69,41 @@ local function is_jieba_filetype(bufnr)
   return jieba_filetypes[vim.bo[bufnr].filetype] == true
 end
 
+local function has_command(name)
+  return vim.fn.exists(":" .. name) == 2
+end
+
+local function ensure_jieba_command()
+  if has_command "JiebaInit" then return true end
+
+  local ok_lazy, lazy = pcall(require, "lazy")
+  if ok_lazy then pcall(lazy.load, { plugins = { "jieba.vim" } }) end
+  if has_command "JiebaInit" then return true end
+
+  vim.g.loaded_jieba_vim = nil
+  pcall(vim.cmd.runtime, "plugin/jieba_vim.vim")
+  return has_command "JiebaInit"
+end
+
+local function ensure_jieba_initialized()
+  if vim.g.jieba_vim_initialized == 1 then return true end
+
+  if not has_python3_provider() then return false end
+
+  if not ensure_jieba_command() then
+    vim.notify("jieba.vim disabled: JiebaInit command is unavailable", vim.log.levels.WARN)
+    return false
+  end
+
+  local ok, err = pcall(vim.cmd.JiebaInit)
+  if not ok then
+    vim.notify(("jieba.vim disabled: %s"):format(err), vim.log.levels.WARN)
+    return false
+  end
+
+  return true
+end
+
 local function set_jieba_keymaps(bufnr)
   for lhs, rhs in pairs(jieba_motions) do
     vim.keymap.set(jieba_modes, lhs, rhs, {
@@ -104,7 +139,7 @@ local function toggle_jieba_word_motion(bufnr)
     unset_jieba_keymaps(bufnr)
     vim.notify("Jieba word motions disabled; restored native w/b/e", vim.log.levels.INFO)
   else
-    if vim.g.jieba_vim_initialized ~= 1 then vim.cmd.JiebaInit() end
+    if not ensure_jieba_initialized() then return end
     set_jieba_keymaps(bufnr)
     vim.notify("Jieba word motions enabled: w/b/e/ge now move by Chinese words", vim.log.levels.INFO)
   end
