@@ -16,6 +16,7 @@ return {
       ensure_installed = {
         "bash",
         "c",
+        "diff",
         "lua",
         "markdown",
         "markdown_inline",
