@@ -1,107 +1,117 @@
-# 键位速查（我的 AstroNvim）
+# Keymap Quick Reference (My AstroNvim)
 
-> `Leader` = `<Space>`（空格），`LocalLeader` = `,`
+> `Leader` = `<Space>`, `LocalLeader` = `,`
 
-## 怎么查键位（最推荐）
+## How To Find Keymaps
 
-- `<Leader>fk`：用 Telescope 搜索所有键位（最实用）
-- 直接按 `<Leader>`：等 `which-key` 弹出菜单，再按下一层按键
-- 不确定某个键是谁设的：用 `:verbose nmap <key>`（例如 `:verbose nmap <Leader>ff`）
+- `<Leader>fk`: Search all keymaps with the picker.
+- Press `<Leader>` directly: wait for `which-key`, then continue with the next key.
+- To see where a mapping is defined: use `:verbose nmap <key>`, for example `:verbose nmap <Leader>ff`.
 
-## 跳转导航（重点）
+## Navigation
 
-### Flash（快速跳转 / 搜索 / 远程操作）
+### Flash
 
-- `s`：Flash 跳转（输入 1–2 个字符 → 选标签跳过去）
-- `S`：Flash 语法树跳转（按 Treesitter 语法节点跳）
-- `yr` / `dr` / `cr`：先进入 yank / delete / change，再用 Flash 远程选目标
-- `yR` / `dR`：按 Treesitter 语法结构复制 / 删除
-- `/` 或 `?` 搜索时：默认启用 Flash 标签
-- 命令行搜索时 `<C-s>`：切换 Flash 搜索标签开关
+- `s`: Flash jump. Type 1-2 characters, then pick a label.
+- `S`: Flash Treesitter jump by syntax node.
+- `/` or `?`: Flash labels are enabled during search.
+- `<C-s>` in command-line search: toggle Flash search labels.
 
-提示：Flash 会覆盖 Vim 原生的 `s`/`S`（替代用法：`cl` ≈ 原 `s`，`cc` ≈ 原 `S`）。
+Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like behavior and `cc` for native `S`-like behavior.
 
-### Harpoon（常用文件“传送门”）
+### Harpoon
 
-- `<Leader>aa`：把当前文件加入 Harpoon
-- `<Leader>am`：打开/关闭 Harpoon 快速菜单
-- `<Leader>1`/`2`/`3`/`4`：跳到第 1–4 个标记文件
-- `<Leader>an` / `<Leader>ap`：下一个 / 上一个标记
+- `<Leader>aa`: Add the current file to Harpoon.
+- `<Leader>am`: Open or close the Harpoon quick menu.
+- `<Leader>1`/`2`/`3`/`4`: Jump to marked file 1-4.
+- `<Leader>an` / `<Leader>ap`: Next or previous mark.
 
-## 文件/搜索（Telescope）
+## Files And Search
 
-- `<C-p>` / `<D-p>`：Quick Open（类似 VSCode `Ctrl/Cmd + P`，搜索并打开文件）
-- `<C-S-p>` / `<D-S-p>`：Command Palette（命令搜索）
-- `<Leader>ff`：Find files
-- `<Leader>fF`：Find all files
-- `<Leader>fo`：在访达打开当前文件所在目录（未保存文件则打开当前工作目录）
-- `<Leader>fw`：Find words（项目内全文搜索）
-- `<Leader>f/`：Find words in current buffer（当前文件搜索）
-- `<Leader>fb`：Find buffers
-- `<Leader>fp`：Quick switch buffers（快速切换已打开文件）
-- `<Leader>fh`：Find help
-- `<Leader>f<CR>`：Resume previous search
-- Telescope 结果列表里 `s`（普通模式）/ `<C-s>`（插入模式）：Flash 结果内跳转
+- `<C-p>` / `<D-p>`: Quick Open, similar to VS Code `Ctrl/Cmd + P`.
+- `<C-S-p>` / `<D-S-p>`: Command Palette.
+- `<Leader>ff`: Find files.
+- `<Leader>fF`: Find all files.
+- `<Leader>fo`: Reveal the current file in Finder, or open the current working directory for unnamed buffers.
+- `<Leader>fO` / `-`: Open the current directory as an editable Oil buffer.
+- `<Leader>fw`: Find words across the project.
+- `<Leader>f/`: Find words in the current buffer.
+- `<Leader>fb`: Find buffers.
+- `<Leader>fp`: Quick switch buffers.
+- `<Leader>fg`: Find changed, staged, and untracked Git files.
+- `<Leader>fh`: Find help.
+- `<Leader>f<CR>`: Resume the previous search.
+- Press Enter in picker results to open the selected file or item.
 
-提示：`<D-*>`（Cmd）映射通常只在 GUI Neovim（如 Neovide）或你已配置终端转发 Cmd 键时可用；纯终端里更稳的是 `<C-*>` 版本。
+Note: `<D-*>` mappings usually require GUI Neovim, such as Neovide, or terminal support for forwarding Cmd-key input. In plain terminals, the `<C-*>` variants are more reliable.
 
-## 代码结构 / 诊断（导航常用）
+## Code Structure And Diagnostics
 
-- `<Leader>lS`：Symbols outline（Aerial 侧栏）
-- `<Leader>ls`：Search symbols（Telescope）
-- `<Leader>lD`：Search diagnostics（Telescope）
-- `<Leader>ld`：Hover diagnostics
+- `<Leader>lS`: Symbols outline with Aerial.
+- `<Leader>ls`: Search symbols with the picker.
+- `<Leader>lD`: Search diagnostics with the picker.
+- `<Leader>ld`: Hover diagnostics.
 
-### LSP 跳转（语言服务器 attach 后可用）
+### LSP Navigation
 
-- `gd`：跳到定义（Definition）
-- `gD`：跳到声明（Declaration）
-- `gI`：跳到实现（Implementation）
-- `gy`：跳到类型定义（Type Definition）
-- `K`：Hover 文档
-- `<Leader>lR`：查找引用（References）
-- `<Leader>lr`：重命名（Rename）
-- `<Leader>la`：Code action
+- `gd`: Go to definition.
+- `gD`: Go to declaration.
+- `gI`: Go to implementation.
+- `gy`: Go to type definition.
+- `K`: Hover documentation.
+- `<Leader>lR`: Find references.
+- `<Leader>lr`: Rename.
+- `<Leader>la`: Code action.
+- `<Leader>cf`: Format the current buffer with Conform.
 
-说明：这些 LSP 键位大多是 **buffer-local**（只有语言服务器 attach 到当前 buffer 后才会出现），最稳的方式还是用 `<Leader>fk` 搜索确认。
+Note: Most LSP mappings are buffer-local and only appear after a language server attaches to the current buffer. Use `<Leader>fk` to confirm available mappings.
 
-## 窗口 / Buffer
+## Windows And Buffers
 
-- `<C-h/j/k/l>`：在分屏间移动
-- `<C-Up/Down/Left/Right>`：调整分屏大小
-- `]b` / `[b`：下一个 / 上一个 buffer
-- `<Leader>c`：关闭当前 buffer
-- `<Leader>bb`：从 tabline 选 buffer
-- `<Leader>bd`：从 tabline 关 buffer
+- `<C-h/j/k/l>`: Move between splits.
+- `<C-Up/Down/Left/Right>`: Resize splits.
+- `]b` / `[b`: Next or previous buffer.
+- `<Leader>c`: Close the current buffer.
+- `<Leader>bb`: Pick a buffer from the tabline.
+- `<Leader>bd`: Close a buffer from the tabline.
 
-## 其它常用
+## Common Commands
 
-- `<Leader>e`：Neo-tree 文件树开关
-- `<Leader>o`：在 Neo-tree 与上一个编辑窗口之间切换焦点
-- `<Leader>w`：保存
-- `<Leader>q`：退出当前窗口
-- `<Leader>h`：回到 Home Screen（Dashboard）
-- `<Leader>Ss`：保存 session；`<Leader>Sl`：加载上次 session
-- `<Leader>tf` / `<Leader>th` / `<Leader>tv`：ToggleTerm（浮窗/水平/竖直）
-- `<Leader>gg`：lazygit（ToggleTerm）
-- `<Leader>tw`：在终端里用 `w3m` 打开网页（先输入 URL）
-- `<Leader>tW`：在终端里用 `w3m` 打开光标下 URL
+- `<Leader>e`: Toggle Neo-tree.
+- `<Leader>o`: Move focus between Neo-tree and the previous editor window.
+- `<Leader>w`: Save.
+- `<Leader>yp`: Copy the current file's relative path.
+- `<Leader>yP`: Copy the current file's absolute path.
+- `<Leader>q`: Quit the current window.
+- `<Leader>h`: Return to the Home Screen dashboard.
+- `<Leader>Ss`: Save session.
+- `<Leader>Sl`: Load the last session.
+- `<Leader>Sr`: Save session and reload AstroNvim.
+- `<Leader>tf` / `<Leader>th` / `<Leader>tv`: ToggleTerm float, horizontal, or vertical terminal.
+- `<Leader>gg`: Lazygit in ToggleTerm.
+- `<Leader>sr`: Open GrugFar for project-wide search and replace.
+- `<Leader>sw`: Search and replace the word under the cursor with GrugFar.
+- `<Leader>tw`: Open a web page with `w3m` in a terminal after entering a URL.
+- `<Leader>tW`: Open the URL under the cursor with `w3m` in a terminal.
 
 ## Markdown
 
-- `<Leader>mp`：打开 `render-markdown` 侧边预览
-- `<Leader>mb`：直接打开浏览器 Markdown 预览
-- `<Leader>mm`：切换浏览器 Markdown 预览（支持 Mermaid）
-- `<Leader>mo`：打开/关闭 Markdown 标题导航（Aerial 侧栏，基于 `#` / `##` / `###` 层级）
-- `<Leader>jj`：切换当前 buffer 的中文跳词模式；开启后 `w` / `b` / `e` / `ge` 按中文词移动
-- `]m` / `[m`：跳到下一个 / 上一个 Markdown 标题
+> These mappings are registered only in Markdown buffers.
 
-### Neo-tree（文件树内常用）
+- `<Leader>mp`: Open the `render-markdown` preview.
+- `<Leader>mb`: Open the Markdown browser preview.
+- `<Leader>mm`: Toggle the Markdown browser preview with Mermaid support.
+- `<Leader>mo`: Toggle the Markdown heading outline with Aerial.
+- `<Leader>mn`: Toggle the Markdown section outline with Aerial.
+- `<Leader>jj`: Toggle Jieba word motions for the current buffer. When enabled, `w`, `b`, `e`, and `ge` move by Chinese words.
+- `]m` / `[m`: Jump to the next or previous Markdown heading.
 
-- `<CR>`：在当前窗口打开文件/目录
-- `l`：进入目录（已展开则进到第一个子项）；在文件上等价于打开文件
-- `h`：收起当前目录；若已收起则回到父目录
-- `s` / `S`：垂直分屏 / 水平分屏打开文件
-- `t`：在新标签页打开文件
-- `w`：用 window picker 选择目标窗口再打开
-- `q`：关闭 Neo-tree 窗口
+### Neo-tree
+
+- `<CR>`: Open the file or directory in the current window.
+- `l`: Enter a directory. If it is already expanded, move to the first child. On files, this opens the file.
+- `h`: Collapse the current directory. If already collapsed, move to the parent directory.
+- `s` / `S`: Open the file in a vertical or horizontal split.
+- `t`: Open the file in a new tab.
+- `w`: Pick a target window, then open the file there.
+- `q`: Close the Neo-tree window.

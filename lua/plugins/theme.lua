@@ -6,40 +6,49 @@ return {
     priority = 1000,
   },
   {
-    "folke/tokyonight.nvim",
-    name = "tokyonight",
+    "projekt0n/github-nvim-theme",
+    name = "github-theme",
     lazy = false,
     priority = 1000,
     opts = {
-      style = "day",
-      day_brightness = 0.6,
-      styles = {
-        comments = { italic = false },
-        keywords = { italic = false },
-        sidebars = "normal",
-        floats = "normal",
+      options = {
+        dim_inactive = false,
+        terminal_colors = true,
       },
-      on_colors = function(colors)
-        colors.fg = "#24292F"
-        colors.fg_dark = "#57606A"
-        colors.fg_float = colors.fg
-        colors.fg_sidebar = colors.fg_dark
-
-        colors.bg = "#FFFFFF"
-        colors.bg_dark = "#F6F8FA"
-        colors.bg_float = colors.bg_dark
-        colors.bg_popup = colors.bg_dark
-        colors.bg_sidebar = colors.bg_dark
-        colors.bg_statusline = colors.bg_dark
-        colors.border = "#D0D7DE"
-        colors.fg_gutter = "#8C959F"
-        colors.comment = "#6E7781"
-      end,
     },
-    config = function(_, opts) require("tokyonight").setup(opts) end,
+    config = function(_, opts) require("github-theme").setup(opts) end,
   },
   {
     "AstroNvim/astroui",
-    opts = function(_, opts) opts.colorscheme = "tokyonight-day" end,
+    opts = function(_, opts)
+      opts.colorscheme = "github_light_high_contrast"
+
+      opts.status = opts.status or {}
+      opts.status.attributes = opts.status.attributes or {}
+      opts.status.attributes.buffer_active = { bold = true, italic = false }
+
+      opts.status.colors = vim.tbl_deep_extend("force", opts.status.colors or {}, {
+        tabline_bg = "#d0d7de",
+        tabline_fg = "#d0d7de",
+        buffer_bg = "#d0d7de",
+        buffer_fg = "#57606a",
+        buffer_path_fg = "#6e7781",
+        buffer_close_fg = "#6e7781",
+        buffer_visible_bg = "#f6f8fa",
+        buffer_visible_fg = "#24292f",
+        buffer_visible_path_fg = "#57606a",
+        buffer_visible_close_fg = "#cf222e",
+        buffer_active_bg = "#0969da",
+        buffer_active_fg = "#ffffff",
+        buffer_active_path_fg = "#ddf4ff",
+        buffer_active_close_fg = "#ffffff",
+        buffer_overflow_bg = "#d0d7de",
+        tab_bg = "#d0d7de",
+        tab_fg = "#57606a",
+        tab_active_bg = "#0969da",
+        tab_active_fg = "#ffffff",
+        tab_close_bg = "#d0d7de",
+      })
+    end,
   },
 }

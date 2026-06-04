@@ -110,7 +110,7 @@ local function set_jieba_keymaps(bufnr)
       buffer = bufnr,
       silent = true,
       remap = true,
-      desc = "Jieba 中文跳词 " .. lhs,
+      desc = "Jieba word motion " .. lhs,
     })
   end
 
@@ -157,7 +157,7 @@ return {
         "<Leader>jj",
         function() toggle_jieba_word_motion(0) end,
         ft = { "markdown", "text" },
-        desc = "切换中文跳词模式",
+        desc = "Toggle Chinese word motions",
       },
     },
     config = function()

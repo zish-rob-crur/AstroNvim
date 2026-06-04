@@ -3,16 +3,54 @@ local function set_markdown_nav_keymaps(bufnr)
     vim.keymap.set("n", lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
   end
 
-  map("<Leader>mp", function() require("render-markdown").preview() end, "Markdown 预览")
-  map("<Leader>mb", "<Cmd>MarkdownPreview<CR>", "Markdown 浏览器预览（直接打开）")
-  map("<Leader>mm", "<Cmd>MarkdownPreviewToggle<CR>", "Markdown 浏览器预览（Mermaid）")
-  map("<Leader>mo", function() vim.cmd "AerialToggle! left" end, "Markdown 标题导航")
-  map("]m", function() require("aerial").next() end, "下一个 Markdown 标题")
-  map("[m", function() require("aerial").prev() end, "上一个 Markdown 标题")
+  map("<Leader>mp", function() require("render-markdown").preview() end, "Markdown preview")
+  map("<Leader>mb", "<Cmd>MarkdownPreview<CR>", "Open Markdown browser preview")
+  map("<Leader>mm", "<Cmd>MarkdownPreviewToggle<CR>", "Toggle Markdown browser preview")
+  map("<Leader>mo", function() vim.cmd "AerialToggle! left" end, "Markdown heading outline")
+  map("<Leader>mn", function() vim.cmd "AerialToggle! left" end, "Markdown section outline")
+  map("]m", function() require("aerial").next() end, "Next Markdown heading")
+  map("[m", function() require("aerial").prev() end, "Previous Markdown heading")
+end
+
+local function open_markdown_nav()
+  vim.schedule(function()
+    if vim.bo.filetype ~= "markdown" then return end
+    if require("user.temp_file").is_buffer(0) then return end
+
+    local ok_lazy, lazy = pcall(require, "lazy")
+    if ok_lazy then lazy.load { plugins = { "aerial.nvim" } } end
+
+    pcall(vim.cmd, "AerialOpen! left")
+  end)
 end
 
 ---@type LazySpec
 return {
+  {
+    "joshuadanpeterson/typewriter.nvim",
+    ft = { "markdown" },
+    config = function()
+      require("typewriter").setup {
+        enable_notifications = false,
+        enable_horizontal_scroll = false,
+        start_enabled = false,
+        always_center = true,
+        always_center_filetypes = {
+          markdown = true,
+        },
+      }
+
+      local group = vim.api.nvim_create_augroup("UserMarkdownTypewriter", { clear = true })
+      vim.api.nvim_create_autocmd("FileType", {
+        group = group,
+        pattern = "markdown",
+        callback = function() vim.cmd "TWEnable" end,
+        desc = "Enable typewriter mode for Markdown",
+      })
+
+      if vim.bo.filetype == "markdown" then vim.cmd "TWEnable" end
+    end,
+  },
   {
     "MeanderingProgrammer/render-markdown.nvim",
     ft = { "markdown" },
@@ -23,16 +61,16 @@ return {
     ---@type render.md.UserConfig
     opts = {
       code = {
-        -- 给行内 code（例如 `'<Leader>ff'`）留一点左右空隙，更清晰
+        -- Add a little padding around inline code like `'<Leader>ff'`.
         inline_pad = 1,
       },
     },
     config = function(_, opts)
       require("render-markdown").setup(opts)
 
-      -- render-markdown 的默认行内 code 背景会链接到 ColorColumn（只给背景），而前景色仍来自 treesitter
-      -- 在浅色主题（例如 tokyonight-day）下容易出现“浅蓝字 + 浅蓝底”，导致可读性很差。
-      -- 这里把 RenderMarkdownCodeInline 的前景色强制设为 Normal.fg，以保证对比度。
+      -- render-markdown links the default inline-code background to ColorColumn,
+      -- while the foreground still comes from treesitter. In light themes, that
+      -- can produce low contrast, so keep inline-code text on Normal.fg.
       local function apply_render_markdown_highlights()
         local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
         local color_column = vim.api.nvim_get_hl(0, { name = "ColorColumn", link = false })
@@ -51,10 +89,16 @@ return {
       vim.api.nvim_create_autocmd("FileType", {
         group = markdown_group,
         pattern = "markdown",
-        callback = function(args) set_markdown_nav_keymaps(args.buf) end,
+        callback = function(args)
+          set_markdown_nav_keymaps(args.buf)
+          open_markdown_nav()
+        end,
       })
 
-      if vim.bo.filetype == "markdown" then set_markdown_nav_keymaps(0) end
+      if vim.bo.filetype == "markdown" then
+        set_markdown_nav_keymaps(0)
+        open_markdown_nav()
+      end
 
       apply_render_markdown_highlights()
       vim.api.nvim_create_autocmd("ColorScheme", {
@@ -67,7 +111,7 @@ return {
     "iamcco/markdown-preview.nvim",
     ft = { "markdown" },
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-    build = "cd app && npm install",
+    build = "cd app && yarn install",
     init = function()
       vim.g.mkdp_filetypes = { "markdown" }
     end,

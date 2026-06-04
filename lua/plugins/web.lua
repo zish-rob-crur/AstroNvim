@@ -7,11 +7,11 @@ end
 
 local function open_w3m(url)
   if vim.fn.executable "w3m" ~= 1 then
-    vim.notify("w3m 未安装", vim.log.levels.ERROR)
+    vim.notify("w3m is not installed", vim.log.levels.ERROR)
     return
   end
   if not url or url == "" then
-    vim.notify("没有可打开的 URL", vim.log.levels.WARN)
+    vim.notify("No URL to open", vim.log.levels.WARN)
     return
   end
 
@@ -38,10 +38,10 @@ return {
     opts = function(_, opts)
       opts.mappings = opts.mappings or {}
       opts.mappings.n = opts.mappings.n or {}
-      opts.mappings.n["<Leader>tw"] = { prompt_w3m, desc = "ToggleTerm w3m（输入 URL）" }
+      opts.mappings.n["<Leader>tw"] = { prompt_w3m, desc = "ToggleTerm w3m (enter URL)" }
       opts.mappings.n["<Leader>tW"] = {
         function() open_w3m(get_url_under_cursor()) end,
-        desc = "ToggleTerm w3m（打开光标下 URL）",
+        desc = "ToggleTerm w3m (open URL under cursor)",
       }
       return opts
     end,
