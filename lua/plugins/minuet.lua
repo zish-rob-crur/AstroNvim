@@ -1,17 +1,19 @@
 local function load_home_env(name)
-  if vim.env[name] and vim.env[name] ~= "" then return end
+  if vim.env[name] and vim.env[name] ~= "" then return true end
 
   local env_path = vim.fn.expand "~/.env"
-  if vim.fn.filereadable(env_path) ~= 1 then return end
+  if vim.fn.filereadable(env_path) ~= 1 then return false end
 
   for _, line in ipairs(vim.fn.readfile(env_path)) do
     local key, value = line:match "^%s*([%w_]+)%s*=%s*(.-)%s*$"
     if key == name and value and value ~= "" then
       value = value:gsub("%s+#.*$", ""):gsub("^['\"]", ""):gsub("['\"]$", "")
       vim.env[name] = value
-      return
+      return true
     end
   end
+
+  return false
 end
 
 return {
@@ -22,7 +24,7 @@ return {
       "nvim-lua/plenary.nvim",
     },
     config = function()
-      load_home_env "DEEPSEEK_API_KEY"
+      local has_deepseek_key = load_home_env "DEEPSEEK_API_KEY"
 
       require("minuet").setup {
         provider = "openai_fim_compatible",
@@ -50,7 +52,7 @@ return {
         },
 
         virtualtext = {
-          auto_trigger_ft = {
+          auto_trigger_ft = has_deepseek_key and {
             "lua",
             "python",
             "typescript",
@@ -58,7 +60,7 @@ return {
             "go",
             "rust",
             "markdown",
-          },
+          } or {},
           keymap = {
             accept = "<M-l>",
             accept_line = "<M-a>",
