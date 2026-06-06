@@ -54,13 +54,80 @@ return {
         vim.notify("Copied: " .. path)
       end
 
+      local function open_current_file_in_browser()
+        local path = vim.api.nvim_buf_get_name(0)
+        if path == "" then
+          vim.notify("Current buffer has no file path", vim.log.levels.WARN)
+          return
+        end
+
+        vim.fn.jobstart({ "open", vim.fn.fnamemodify(path, ":p") }, { detach = true })
+      end
+
+      local noisy_search_excludes = {
+        ".git",
+        ".venv",
+        "node_modules",
+        ".pytest_cache",
+        ".ruff_cache",
+        ".mypy_cache",
+        "__pycache__",
+      }
+
+      local uv = vim.uv or vim.loop
+
+      local function git_root()
+        local root = vim.fs.root(0, ".git")
+        return root or uv.cwd() or vim.fn.getcwd()
+      end
+
+      local function quick_open_files()
+        require("snacks").picker.files {
+          cwd = git_root(),
+          hidden = true,
+          ignored = true,
+          exclude = noisy_search_excludes,
+        }
+      end
+
+      local function search_project_words()
+        require("snacks").picker.grep {
+          cwd = git_root(),
+          exclude = noisy_search_excludes,
+        }
+      end
+
+      local function search_all_project_words()
+        require("snacks").picker.grep {
+          cwd = git_root(),
+          hidden = true,
+          ignored = true,
+          exclude = noisy_search_excludes,
+        }
+      end
+
+      local function search_word_under_cursor()
+        require("snacks").picker.grep_word {
+          cwd = git_root(),
+          exclude = noisy_search_excludes,
+        }
+      end
+
       opts.mappings.n["<C-p>"] = {
-        function() require("snacks").picker.files() end,
+        quick_open_files,
         desc = "Quick Open files (VSCode style)",
       }
       opts.mappings.n["<D-p>"] = {
-        function() require("snacks").picker.files() end,
+        quick_open_files,
         desc = "Quick Open files (VSCode style)",
+      }
+      opts.mappings.n["<C-S-f>"] = {
+        search_all_project_words,
+        desc = "Search all project files (VSCode style)",
+      }
+      opts.mappings.n["<D-S-f>"] = {
+        search_all_project_words,
+        desc = "Search all project files (VSCode style)",
       }
       opts.mappings.n["<C-S-p>"] = {
         function() require("snacks").picker.commands() end,
@@ -78,9 +145,25 @@ return {
         function() require("snacks").picker.lines() end,
         desc = "Find words in current buffer",
       }
+      opts.mappings.n["<Leader>fc"] = {
+        search_word_under_cursor,
+        desc = "Find word under cursor",
+      }
+      opts.mappings.n["<Leader>fw"] = {
+        search_project_words,
+        desc = "Find words in project",
+      }
+      opts.mappings.n["<Leader>fW"] = {
+        search_all_project_words,
+        desc = "Find words in all project files",
+      }
       opts.mappings.n["<Leader>fg"] = {
         function() require("snacks").picker.git_status() end,
         desc = "Find changed git files",
+      }
+      opts.mappings.n["<Leader>hp"] = {
+        open_current_file_in_browser,
+        desc = "Preview current HTML report in browser",
       }
       opts.mappings.n["<Leader>y"] = { desc = "Yank/copy" }
       opts.mappings.n["<Leader>yp"] = {

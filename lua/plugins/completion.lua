@@ -1,0 +1,135 @@
+-- Completion ranking tuned for coding-first suggestions.
+
+---@type LazySpec
+return {
+  {
+    "saghen/blink.cmp",
+    opts = function(_, opts)
+      opts.fuzzy = vim.tbl_deep_extend("force", opts.fuzzy or {}, {
+        implementation = "prefer_rust",
+        sorts = {
+          "exact",
+          "score",
+          "sort_text",
+          "kind",
+          "label",
+        },
+      })
+
+      opts.completion = vim.tbl_deep_extend("force", opts.completion or {}, {
+        list = {
+          selection = {
+            preselect = true,
+            auto_insert = false,
+          },
+        },
+        menu = {
+          auto_show = true,
+          auto_show_delay_ms = 0,
+        },
+        keyword = {
+          range = "prefix",
+        },
+        trigger = {
+          prefetch_on_insert = true,
+          show_on_keyword = true,
+          show_on_trigger_character = true,
+        },
+        documentation = {
+          auto_show = false,
+          auto_show_delay_ms = 0,
+          treesitter_highlighting = false,
+        },
+      })
+
+      opts.sources = opts.sources or {}
+      opts.sources.min_keyword_length = 0
+      opts.sources.default = {
+        "lsp",
+        "snippets",
+        "path",
+        "buffer",
+      }
+      opts.sources.per_filetype = vim.tbl_deep_extend("force", opts.sources.per_filetype or {}, {
+        python = { "python_imports", "lsp", "snippets", "path", "buffer" },
+        javascript = { "js_imports", "lsp", "snippets", "path", "buffer" },
+        javascriptreact = { "js_imports", "lsp", "snippets", "path", "buffer" },
+        typescript = { "js_imports", "lsp", "snippets", "path", "buffer" },
+        typescriptreact = { "js_imports", "lsp", "snippets", "path", "buffer" },
+        markdown = { "lsp", "snippets", "path", "buffer" },
+        text = { "path", "buffer" },
+      })
+      opts.sources.providers = vim.tbl_deep_extend("force", opts.sources.providers or {}, {
+        python_imports = {
+          name = "PyImport",
+          module = "user.blink_python_imports",
+          score_offset = 120,
+          min_keyword_length = 0,
+          max_items = 80,
+        },
+        js_imports = {
+          name = "JSImport",
+          module = "user.blink_js_imports",
+          score_offset = 115,
+          min_keyword_length = 0,
+          max_items = 120,
+        },
+        lsp = {
+          async = true,
+          timeout_ms = 250,
+          score_offset = 80,
+          fallbacks = {},
+        },
+        snippets = {
+          score_offset = 10,
+          min_keyword_length = 2,
+        },
+        path = {
+          score_offset = -10,
+          min_keyword_length = 2,
+          fallbacks = {},
+        },
+        buffer = {
+          enabled = function()
+            local ft = vim.bo.filetype
+            local enabled_filetypes = {
+              javascript = true,
+              javascriptreact = true,
+              lua = true,
+              markdown = true,
+              python = true,
+              text = true,
+              typescript = true,
+              typescriptreact = true,
+            }
+            return enabled_filetypes[ft] and vim.api.nvim_buf_line_count(0) <= 8000
+          end,
+          score_offset = -60,
+          min_keyword_length = 3,
+          max_items = 8,
+          opts = {
+            get_bufnrs = function() return { vim.api.nvim_get_current_buf() } end,
+            get_search_bufnrs = function() return { vim.api.nvim_get_current_buf() } end,
+            max_sync_buffer_size = 20000,
+            max_async_buffer_size = 120000,
+            max_total_buffer_size = 150000,
+            use_cache = true,
+          },
+        },
+      })
+    end,
+  },
+  {
+    "AstroNvim/astrocore",
+    opts = function(_, opts)
+      opts.autocmds = opts.autocmds or {}
+      opts.autocmds.zish_context_completion = {
+        {
+          event = "TextChangedI",
+          desc = "Trigger completion in language import contexts",
+          callback = function(args) require("user.completion_context").trigger(args.buf) end,
+        },
+      }
+    end,
+  },
+}

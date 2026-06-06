@@ -1,3 +1,14 @@
+local function move_to_split(direction, fallback)
+  return function()
+    local ok, smart_splits = pcall(require, "smart-splits")
+    if ok then
+      smart_splits["move_cursor_" .. direction]()
+    else
+      vim.cmd("wincmd " .. fallback)
+    end
+  end
+end
+
 return {
   {
     "folke/flash.nvim",
@@ -72,6 +83,11 @@ return {
       opts.mappings = opts.mappings or {}
       opts.mappings.n = opts.mappings.n or {}
       opts.mappings.n["<Leader>a"] = { desc = "Harpoon" }
+      opts.mappings.n["<Leader>w"] = { "<Cmd>w<CR>", desc = "Save" }
+      opts.mappings.n["<M-h>"] = { move_to_split("left", "h"), desc = "Move to left split" }
+      opts.mappings.n["<M-j>"] = { move_to_split("down", "j"), desc = "Move to below split" }
+      opts.mappings.n["<M-k>"] = { move_to_split("up", "k"), desc = "Move to above split" }
+      opts.mappings.n["<M-l>"] = { move_to_split("right", "l"), desc = "Move to right split" }
       return opts
     end,
   },

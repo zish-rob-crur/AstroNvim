@@ -2,24 +2,78 @@ return {
   {
     "nvim-neo-tree/neo-tree.nvim",
     init = function()
-      vim.api.nvim_create_autocmd("VimEnter", {
-        callback = function()
-          vim.schedule(function()
-            local file = vim.api.nvim_buf_get_name(0)
-            if require("user.temp_file").is_path(file) then return end
+      local function neotree_windows()
+        local windows = {}
+        for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+          local bufnr = vim.api.nvim_win_get_buf(win)
+          if vim.bo[bufnr].filetype == "neo-tree" then
+            local ok, position = pcall(vim.api.nvim_buf_get_var, bufnr, "neo_tree_position")
+            table.insert(windows, { id = win, position = ok and position or nil })
+          end
+        end
+        return windows
+      end
 
-            local cwd = vim.fn.getcwd()
-            local command = "Neotree show filesystem right"
+      local function open_right_tree(file, cwd)
+        local ok_lazy, lazy = pcall(require, "lazy")
+        if ok_lazy then pcall(lazy.load, { plugins = { "neo-tree.nvim" } }) end
 
-            if file ~= "" and vim.startswith(vim.fs.normalize(file), vim.fs.normalize(cwd) .. "/") then
-              command = "Neotree show filesystem reveal right"
+        local command = "Neotree show filesystem right"
+
+        if file ~= "" and vim.fn.isdirectory(file) == 1 then
+          command = "Neotree show filesystem right dir=" .. vim.fn.fnameescape(file)
+        elseif file ~= "" and vim.startswith(vim.fs.normalize(file), vim.fs.normalize(cwd) .. "/") then
+          command = "Neotree show filesystem reveal right"
+        end
+
+        pcall(vim.cmd, command)
+      end
+
+      local function open_dashboard()
+        local ok_lazy, lazy = pcall(require, "lazy")
+        if ok_lazy then pcall(lazy.load, { plugins = { "snacks.nvim" } }) end
+
+        local ok_snacks, snacks = pcall(require, "snacks")
+        if ok_snacks and snacks.dashboard then pcall(snacks.dashboard.open, { buf = 0, win = 0 }) end
+      end
+
+      local function schedule_open_right_tree()
+        vim.schedule(function()
+          local file = vim.api.nvim_buf_get_name(0)
+          if require("user.temp_file").is_path(file) then return end
+
+          local cwd = vim.fn.getcwd()
+          local all_windows = vim.api.nvim_tabpage_list_wins(0)
+          local trees = neotree_windows()
+          local starts_with_directory = file ~= "" and vim.fn.isdirectory(file) == 1
+          local directory_bufnr = starts_with_directory and vim.api.nvim_get_current_buf() or nil
+          local should_open_dashboard = file == "" or starts_with_directory
+
+          if #trees == 1 and trees[1].position == "right" and #all_windows > 1 then return end
+
+          if #trees > 0 then
+            if vim.bo.filetype == "neo-tree" then vim.cmd "enew" end
+            pcall(vim.cmd, "Neotree close")
+          elseif starts_with_directory then
+            vim.cmd "enew"
+            if directory_bufnr and vim.api.nvim_buf_is_valid(directory_bufnr) then
+              pcall(vim.api.nvim_buf_delete, directory_bufnr, { force = true })
             end
+          end
 
-            pcall(vim.cmd, command)
-          end)
-        end,
+          if should_open_dashboard and vim.bo.filetype ~= "snacks_dashboard" then open_dashboard() end
+
+          open_right_tree(file, cwd)
+        end)
+      end
+
+      vim.api.nvim_create_autocmd("VimEnter", {
+        callback = schedule_open_right_tree,
+        once = true,
         desc = "Open Neo-tree on the right at startup",
       })
+      vim.defer_fn(schedule_open_right_tree, 100)
+
       vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
         callback = function(args) require("user.temp_file").close_sidebars_for_buffer(args.buf) end,
         desc = "Hide sidebars for temporary files",
@@ -30,10 +84,14 @@ return {
       opts.window.position = "right"
 
       opts.filesystem = opts.filesystem or {}
+      opts.filesystem.hijack_netrw_behavior = "disabled"
       opts.filesystem.filtered_items = opts.filesystem.filtered_items or {}
 
       -- Show dotfiles by default, such as .env, .github, and .zshrc.
       opts.filesystem.filtered_items.hide_dotfiles = false
+      opts.filesystem.filtered_items.hide_gitignored = false
+      opts.filesystem.filtered_items.hide_hidden = false
+      opts.filesystem.filtered_items.hide_ignored = false
 
       -- Keep the .git directory hidden to reduce noise.
       opts.filesystem.filtered_items.never_show = opts.filesystem.filtered_items.never_show or {}

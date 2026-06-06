@@ -56,11 +56,14 @@ return {
             "lua",
             "python",
             "typescript",
+            "typescriptreact",
             "javascript",
+            "javascriptreact",
             "go",
             "rust",
             "markdown",
           } or {},
+          show_on_completion_menu = true,
           keymap = {
             accept = "<M-l>",
             accept_line = "<M-a>",
@@ -70,6 +73,17 @@ return {
             dismiss = "<C-]>",
           },
         },
+      }
+    end,
+  },
+  {
+    "AstroNvim/astrocore",
+    opts = function(_, opts)
+      opts.mappings = opts.mappings or {}
+      opts.mappings.n = opts.mappings.n or {}
+      opts.mappings.n["<Leader>ua"] = {
+        "<Cmd>Minuet virtualtext toggle<CR>",
+        desc = "Toggle AI inline completion",
       }
     end,
   },
