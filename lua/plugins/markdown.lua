@@ -1,27 +1,13 @@
 local function set_markdown_nav_keymaps(bufnr)
-  local map = function(lhs, rhs, desc)
-    vim.keymap.set("n", lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
-  end
+  local map = function(lhs, rhs, desc) vim.keymap.set("n", lhs, rhs, { buffer = bufnr, silent = true, desc = desc }) end
 
   map("<Leader>mp", function() require("render-markdown").preview() end, "Markdown preview")
-  map("<Leader>mb", "<Cmd>MarkdownPreview<CR>", "Open Markdown browser preview")
-  map("<Leader>mm", "<Cmd>MarkdownPreviewToggle<CR>", "Toggle Markdown browser preview")
+  map("<Leader>mb", "<Cmd>LivePreview start<CR>", "Open Markdown live browser preview")
+  map("<Leader>mc", "<Cmd>LivePreview close<CR>", "Close Markdown live browser preview")
   map("<Leader>mo", function() vim.cmd "AerialToggle! left" end, "Markdown heading outline")
   map("<Leader>mn", function() vim.cmd "AerialToggle! left" end, "Markdown section outline")
   map("]m", function() require("aerial").next() end, "Next Markdown heading")
   map("[m", function() require("aerial").prev() end, "Previous Markdown heading")
-end
-
-local function open_markdown_nav()
-  vim.schedule(function()
-    if vim.bo.filetype ~= "markdown" then return end
-    if require("user.temp_file").is_buffer(0) then return end
-
-    local ok_lazy, lazy = pcall(require, "lazy")
-    if ok_lazy then lazy.load { plugins = { "aerial.nvim" } } end
-
-    pcall(vim.cmd, "AerialOpen! left")
-  end)
 end
 
 ---@type LazySpec
@@ -89,16 +75,10 @@ return {
       vim.api.nvim_create_autocmd("FileType", {
         group = markdown_group,
         pattern = "markdown",
-        callback = function(args)
-          set_markdown_nav_keymaps(args.buf)
-          open_markdown_nav()
-        end,
+        callback = function(args) set_markdown_nav_keymaps(args.buf) end,
       })
 
-      if vim.bo.filetype == "markdown" then
-        set_markdown_nav_keymaps(0)
-        open_markdown_nav()
-      end
+      if vim.bo.filetype == "markdown" then set_markdown_nav_keymaps(0) end
 
       apply_render_markdown_highlights()
       vim.api.nvim_create_autocmd("ColorScheme", {
@@ -108,13 +88,19 @@ return {
     end,
   },
   {
-    "iamcco/markdown-preview.nvim",
-    ft = { "markdown" },
-    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-    -- Use upstream installer to avoid dirtying the plugin git worktree with lockfile changes.
-    build = function() vim.fn["mkdp#util#install"]() end,
-    init = function()
-      vim.g.mkdp_filetypes = { "markdown" }
+    "brianhuster/live-preview.nvim",
+    ft = { "markdown", "html", "svg", "asciidoc" },
+    cmd = { "LivePreview" },
+    dependencies = { "folke/snacks.nvim" },
+    config = function()
+      require("livepreview.config").set {
+        port = 5500,
+        browser = "default",
+        dynamic_root = false,
+        sync_scroll = true,
+        picker = "snacks.picker",
+        address = "127.0.0.1",
+      }
     end,
   },
   {

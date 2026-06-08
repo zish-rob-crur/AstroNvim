@@ -2,6 +2,8 @@ return {
   {
     "nvim-neo-tree/neo-tree.nvim",
     init = function()
+      local opening_right_tree = false
+
       local function neotree_windows()
         local windows = {}
         for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
@@ -38,32 +40,40 @@ return {
       end
 
       local function schedule_open_right_tree()
+        if opening_right_tree then return end
+        opening_right_tree = true
+
         vim.schedule(function()
-          local file = vim.api.nvim_buf_get_name(0)
-          if require("user.temp_file").is_path(file) then return end
+          local ok, err = xpcall(function()
+            local file = vim.api.nvim_buf_get_name(0)
+            if require("user.temp_file").is_path(file) then return end
 
-          local cwd = vim.fn.getcwd()
-          local all_windows = vim.api.nvim_tabpage_list_wins(0)
-          local trees = neotree_windows()
-          local starts_with_directory = file ~= "" and vim.fn.isdirectory(file) == 1
-          local directory_bufnr = starts_with_directory and vim.api.nvim_get_current_buf() or nil
-          local should_open_dashboard = file == "" or starts_with_directory
+            local cwd = vim.fn.getcwd()
+            local all_windows = vim.api.nvim_tabpage_list_wins(0)
+            local trees = neotree_windows()
+            local starts_with_directory = file ~= "" and vim.fn.isdirectory(file) == 1
+            local directory_bufnr = starts_with_directory and vim.api.nvim_get_current_buf() or nil
+            local should_open_dashboard = file == "" or starts_with_directory
 
-          if #trees == 1 and trees[1].position == "right" and #all_windows > 1 then return end
+            if #trees == 1 and trees[1].position == "right" and #all_windows > 1 then return end
 
-          if #trees > 0 then
-            if vim.bo.filetype == "neo-tree" then vim.cmd "enew" end
-            pcall(vim.cmd, "Neotree close")
-          elseif starts_with_directory then
-            vim.cmd "enew"
-            if directory_bufnr and vim.api.nvim_buf_is_valid(directory_bufnr) then
-              pcall(vim.api.nvim_buf_delete, directory_bufnr, { force = true })
+            if #trees > 0 then
+              if vim.bo.filetype == "neo-tree" then vim.cmd "enew" end
+              pcall(vim.cmd, "Neotree close")
+            elseif starts_with_directory then
+              vim.cmd "enew"
+              if directory_bufnr and vim.api.nvim_buf_is_valid(directory_bufnr) then
+                pcall(vim.api.nvim_buf_delete, directory_bufnr, { force = true })
+              end
             end
-          end
 
-          if should_open_dashboard and vim.bo.filetype ~= "snacks_dashboard" then open_dashboard() end
+            if should_open_dashboard and vim.bo.filetype ~= "snacks_dashboard" then open_dashboard() end
 
-          open_right_tree(file, cwd)
+            open_right_tree(file, cwd)
+          end, debug.traceback)
+
+          opening_right_tree = false
+          if not ok then error(err) end
         end)
       end
 
@@ -72,7 +82,6 @@ return {
         once = true,
         desc = "Open Neo-tree on the right at startup",
       })
-      vim.defer_fn(schedule_open_right_tree, 100)
 
       vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
         callback = function(args) require("user.temp_file").close_sidebars_for_buffer(args.buf) end,

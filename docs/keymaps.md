@@ -125,8 +125,8 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 > These mappings are registered only in Markdown buffers. / 这些映射只会在 Markdown 缓冲区中注册。
 
 - `<Leader>mp`: Open the `render-markdown` preview. / 打开 `render-markdown` 预览。
-- `<Leader>mb`: Open the Markdown browser preview. / 打开 Markdown 浏览器预览。
-- `<Leader>mm`: Toggle the Markdown browser preview with Mermaid support. / 切换带 Mermaid 支持的 Markdown 浏览器预览。
+- `<Leader>mb`: Open the live Markdown browser preview with Mermaid support. / 打开带 Mermaid 支持的 Markdown 实时浏览器预览。
+- `<Leader>mc`: Close the live Markdown browser preview. / 关闭 Markdown 实时浏览器预览。
 - `<Leader>mo`: Toggle the Markdown heading outline with Aerial. / 使用 Aerial 切换 Markdown 标题大纲。
 - `<Leader>mn`: Toggle the Markdown section outline with Aerial. / 使用 Aerial 切换 Markdown 章节大纲。
 - `<Leader>jj`: Toggle Jieba word motions for the current buffer. When enabled, `w`, `b`, `e`, and `ge` move by Chinese words. / 为当前缓冲区切换 Jieba 中文分词移动。启用后，`w`、`b`、`e` 和 `ge` 会按中文词移动。
