@@ -89,18 +89,25 @@ return {
       })
     end,
     opts = function(_, opts)
+      opts.popup_border_style = "rounded"
+      opts.use_popups_for_input = false
+
       opts.window = opts.window or {}
       opts.window.position = "right"
+      opts.window.width = 30
+
+      opts.source_selector = opts.source_selector or {}
+      opts.source_selector.winbar = false
+      opts.source_selector.statusline = false
 
       opts.filesystem = opts.filesystem or {}
       opts.filesystem.hijack_netrw_behavior = "disabled"
       opts.filesystem.filtered_items = opts.filesystem.filtered_items or {}
 
-      -- Show dotfiles by default, such as .env, .github, and .zshrc.
-      opts.filesystem.filtered_items.hide_dotfiles = false
-      opts.filesystem.filtered_items.hide_gitignored = false
+      opts.filesystem.filtered_items.visible = false
+      opts.filesystem.filtered_items.hide_dotfiles = true
+      opts.filesystem.filtered_items.hide_gitignored = true
       opts.filesystem.filtered_items.hide_hidden = false
-      opts.filesystem.filtered_items.hide_ignored = false
 
       -- Keep the .git directory hidden to reduce noise.
       opts.filesystem.filtered_items.never_show = opts.filesystem.filtered_items.never_show or {}

@@ -11,6 +11,14 @@ end
 
 return {
   {
+    "mrjones2014/smart-splits.nvim",
+    lazy = false,
+    opts = {
+      multiplexer_integration = vim.env.TMUX and "tmux" or nil,
+    },
+    config = function(_, opts) require("smart-splits").setup(opts) end,
+  },
+  {
     "folke/flash.nvim",
     event = "VeryLazy",
     opts = {
@@ -84,6 +92,14 @@ return {
       opts.mappings.n = opts.mappings.n or {}
       opts.mappings.n["<Leader>a"] = { desc = "Harpoon" }
       opts.mappings.n["<Leader>w"] = { "<Cmd>w<CR>", desc = "Save" }
+      opts.mappings.n["<C-h>"] = { "<Nop>", desc = "Disabled; use <M-h> for split/pane navigation" }
+      opts.mappings.n["<C-j>"] = { "<Nop>", desc = "Disabled; use <M-j> for split/pane navigation" }
+      opts.mappings.n["<C-k>"] = { "<Nop>", desc = "Disabled; use <M-k> for split/pane navigation" }
+      opts.mappings.n["<C-l>"] = { "<Nop>", desc = "Disabled; use <M-l> for split/pane navigation" }
+      opts.mappings.n["<C-H>"] = { "<Nop>", desc = "Disabled; use <M-h> for split/pane navigation" }
+      opts.mappings.n["<C-J>"] = { "<Nop>", desc = "Disabled; use <M-j> for split/pane navigation" }
+      opts.mappings.n["<C-K>"] = { "<Nop>", desc = "Disabled; use <M-k> for split/pane navigation" }
+      opts.mappings.n["<C-L>"] = { "<Nop>", desc = "Disabled; use <M-l> for split/pane navigation" }
       opts.mappings.n["<M-h>"] = { move_to_split("left", "h"), desc = "Move to left split" }
       opts.mappings.n["<M-j>"] = { move_to_split("down", "j"), desc = "Move to below split" }
       opts.mappings.n["<M-k>"] = { move_to_split("up", "k"), desc = "Move to above split" }

@@ -28,27 +28,27 @@ Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like beh
 
 ## Files And Search / 文件与搜索
 
-- `<C-p>` / `<D-p>`: Quick Open, similar to VS Code `Ctrl/Cmd + P`. / 快速打开，类似 VS Code 的 `Ctrl/Cmd + P`。
-- `<C-S-f>` / `<D-S-f>`: Search text across all project files, including hidden and ignored files. / 在所有项目文件中搜索文本，包括隐藏文件和被忽略文件。
-- `<C-S-p>` / `<D-S-p>`: Command Palette. / 打开命令面板。
-- `<Leader>ff`: Find files. / 查找文件。
-- `<Leader>fF`: Find all files. / 查找所有文件。
+- `<C-p>` / `<Leader><Space>`: Find project files. / 查找项目文件。
+- `<Leader>p`: Command palette. / 打开命令面板。
+- `<Leader>ss`: Search text in project files. / 在项目文件中全文搜索。
+- `<Leader>sS`: Search text in all project files, including hidden and ignored files. / 在所有项目文件中全文搜索，包括隐藏文件和被忽略文件。
+- `<Leader>sw`: Search the word under the cursor across the project. / 在项目中搜索光标下的词。
+- `<Leader>sb`: Search text in the current buffer. / 在当前缓冲区中搜索文本。
+- `<Leader>sr`: Search and replace across the project with GrugFar. / 使用 GrugFar 执行项目级查找替换。
+- `<Leader>sR`: Search and replace the word under the cursor with GrugFar. / 使用 GrugFar 查找并替换光标下的词。
+- `<Leader>ff`: Find project files. / 查找项目文件。
+- `<Leader>fF`: Find all project files, including hidden and ignored files. / 查找所有项目文件，包括隐藏文件和被忽略文件。
 - `<Leader>fo`: Reveal the current file in Finder, or open the current working directory for unnamed buffers. / 在 Finder 中显示当前文件；如果是未命名缓冲区，则打开当前工作目录。
-- `<Leader>fO` / `-`: Open the current directory as an editable Oil buffer. / 将当前目录作为可编辑的 Oil 缓冲区打开。
-- `<Leader>fc`: Find the word under the cursor across the project. / 在项目中查找光标下的词。
-- `<Leader>fw`: Find words across normal project files. / 在普通项目文件中全文搜索。
-- `<Leader>fW`: Find words across all project files, including hidden and ignored files. / 在所有项目文件中全文搜索，包括隐藏文件和被忽略文件。
-- `<Leader>f/`: Find words in the current buffer. / 在当前缓冲区中搜索文本。
+- `<Leader>fO`: Find old files in the current working directory. / 查找当前工作目录中的最近文件。
+- `-`: Open the current directory as an editable Oil buffer. / 将当前目录作为可编辑的 Oil 缓冲区打开。
 - `<Leader>fb`: Find buffers. / 查找缓冲区。
-- `<Leader>fp`: Quick switch buffers. / 快速切换缓冲区。
+- `<Leader>fp`: Find buffers. / 查找缓冲区。
 - `<Leader>fg`: Find changed, staged, and untracked Git files. / 查找已修改、已暂存和未跟踪的 Git 文件。
 - `<Leader>fh`: Find help. / 查找帮助文档。
 - `<Leader>f<CR>`: Resume the previous search. / 恢复上一次搜索。
 - `<Leader>hp`: Preview the current HTML report in the default browser. / 在默认浏览器中预览当前 HTML 报告。
 - `:GitUrlCopy` / `:GitUrlCopyPermalink` / `:GitUrlOpen`: Copy or open the current GitHub/GitLab file URL from the command palette. / 从命令面板复制或打开当前文件的 GitHub/GitLab URL。
 - Press Enter in picker results to open the selected file or item. / 在选择器结果中按回车可打开选中的文件或条目。
-
-Note: `<D-*>` mappings usually require GUI Neovim, such as Neovide, or terminal support for forwarding Cmd-key input. In plain terminals, the `<C-*>` variants are more reliable. / 注意：`<D-*>` 映射通常需要 GUI Neovim（如 Neovide），或终端支持转发 Cmd 键输入。在普通终端中，`<C-*>` 变体更可靠。
 
 ## Code Structure And Diagnostics / 代码结构与诊断
 
@@ -79,8 +79,7 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 
 ## Windows And Buffers / 窗口与缓冲区
 
-- `<C-h/j/k/l>`: Move between splits. / 在分屏之间移动。
-- `<M-h/j/k/l>`: Move between splits with Alt/Meta. / 使用 Alt/Meta + hjkl 在分屏之间移动。
+- `<M-h/j/k/l>`: Move between Neovim splits and tmux panes with Option/Alt. / 使用 Option/Alt + hjkl 在 Neovim 分屏和 tmux pane 之间移动。
 - `<C-Up/Down/Left/Right>`: Resize splits. / 调整分屏大小。
 - `]b` / `[b`: Next or previous buffer. / 切换到下一个或上一个缓冲区。
 - `<Leader>c`: Close the current buffer. / 关闭当前缓冲区。
@@ -115,8 +114,6 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `<Leader>gxn`: Remove both sides of the current conflict. / 移除当前冲突的双方内容。
 - `<Leader>gxq`: List Git conflicts in quickfix. / 在 quickfix 中列出 Git 冲突。
 - `<Leader>gxr`: Refresh Git conflict detection. / 刷新 Git 冲突检测。
-- `<Leader>sr`: Open GrugFar for project-wide search and replace. / 打开 GrugFar 执行项目级查找替换。
-- `<Leader>sw`: Search and replace the word under the cursor with GrugFar. / 使用 GrugFar 查找并替换光标下的词。
 - `<Leader>tw`: Open a web page with `w3m` in a terminal after entering a URL. / 输入 URL 后，在终端中用 `w3m` 打开网页。
 - `<Leader>tW`: Open the URL under the cursor with `w3m` in a terminal. / 在终端中用 `w3m` 打开光标下的 URL。
 

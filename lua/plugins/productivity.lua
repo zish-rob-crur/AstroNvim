@@ -4,7 +4,6 @@ return {
     cmd = "Oil",
     keys = {
       { "-", "<cmd>Oil<CR>", desc = "Open parent directory with Oil" },
-      { "<Leader>fO", "<cmd>Oil<CR>", desc = "Edit current directory with Oil" },
     },
     opts = {
       default_file_explorer = false,
@@ -20,7 +19,7 @@ return {
     keys = {
       { "<Leader>sr", "<cmd>GrugFar<CR>", desc = "Search and replace in project" },
       {
-        "<Leader>sw",
+        "<Leader>sR",
         function()
           require("grug-far").open {
             prefills = {
@@ -86,7 +85,7 @@ return {
 
       opts.mappings = opts.mappings or {}
       opts.mappings.n = opts.mappings.n or {}
-      opts.mappings.n["<Leader>s"] = { desc = "Search/replace" }
+      opts.mappings.n["<Leader>s"] = { desc = "Search" }
       opts.mappings.n["<Leader>c"] = opts.mappings.n["<Leader>c"] or { desc = "Code" }
 
       return opts

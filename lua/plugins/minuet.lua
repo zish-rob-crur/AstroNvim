@@ -25,6 +25,24 @@ return {
     },
     config = function()
       local has_deepseek_key = load_home_env "DEEPSEEK_API_KEY"
+      local auto_trigger_filetypes = has_deepseek_key and {
+        "lua",
+        "python",
+        "typescript",
+        "typescriptreact",
+        "javascript",
+        "javascriptreact",
+        "go",
+        "rust",
+        "markdown",
+      } or {}
+
+      local function enable_auto_trigger_for_buffer(bufnr)
+        if vim.b[bufnr].minuet_virtual_text_auto_trigger ~= nil then return end
+        if vim.tbl_contains(auto_trigger_filetypes, vim.bo[bufnr].filetype) then
+          vim.b[bufnr].minuet_virtual_text_auto_trigger = true
+        end
+      end
 
       require("minuet").setup {
         provider = "openai_fim_compatible",
@@ -52,20 +70,10 @@ return {
         },
 
         virtualtext = {
-          auto_trigger_ft = has_deepseek_key and {
-            "lua",
-            "python",
-            "typescript",
-            "typescriptreact",
-            "javascript",
-            "javascriptreact",
-            "go",
-            "rust",
-            "markdown",
-          } or {},
+          auto_trigger_ft = auto_trigger_filetypes,
           show_on_completion_menu = true,
           keymap = {
-            accept = "<M-l>",
+            accept = "<C-y>",
             accept_line = "<M-a>",
             accept_n_lines = "<M-z>",
             prev = "<M-[>",
@@ -74,6 +82,16 @@ return {
           },
         },
       }
+
+      vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
+        group = vim.api.nvim_create_augroup("ZishMinuetAutoTrigger", { clear = true }),
+        callback = function(args) enable_auto_trigger_for_buffer(args.buf) end,
+        desc = "Enable Minuet virtual text auto trigger for configured filetypes",
+      })
+
+      for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(bufnr) then enable_auto_trigger_for_buffer(bufnr) end
+      end
     end,
   },
   {
