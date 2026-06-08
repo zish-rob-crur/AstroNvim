@@ -45,6 +45,7 @@ Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like beh
 - `<Leader>fh`: Find help. / 查找帮助文档。
 - `<Leader>f<CR>`: Resume the previous search. / 恢复上一次搜索。
 - `<Leader>hp`: Preview the current HTML report in the default browser. / 在默认浏览器中预览当前 HTML 报告。
+- `:GitUrlCopy` / `:GitUrlCopyPermalink` / `:GitUrlOpen`: Copy or open the current GitHub/GitLab file URL from the command palette. / 从命令面板复制或打开当前文件的 GitHub/GitLab URL。
 - Press Enter in picker results to open the selected file or item. / 在选择器结果中按回车可打开选中的文件或条目。
 
 Note: `<D-*>` mappings usually require GUI Neovim, such as Neovide, or terminal support for forwarding Cmd-key input. In plain terminals, the `<C-*>` variants are more reliable. / 注意：`<D-*>` 映射通常需要 GUI Neovim（如 Neovide），或终端支持转发 Cmd 键输入。在普通终端中，`<C-*>` 变体更可靠。
