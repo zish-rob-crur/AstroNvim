@@ -48,18 +48,26 @@ return {
         "lsp",
         "snippets",
         "path",
+        "cwd_paths",
         "buffer",
       }
       opts.sources.per_filetype = vim.tbl_deep_extend("force", opts.sources.per_filetype or {}, {
-        python = { "python_imports", "lsp", "snippets", "path", "buffer" },
-        javascript = { "js_imports", "lsp", "snippets", "path", "buffer" },
-        javascriptreact = { "js_imports", "lsp", "snippets", "path", "buffer" },
-        typescript = { "js_imports", "lsp", "snippets", "path", "buffer" },
-        typescriptreact = { "js_imports", "lsp", "snippets", "path", "buffer" },
-        markdown = { "lsp", "snippets", "path", "buffer" },
-        text = { "path", "buffer" },
+        python = { "python_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" },
+        javascript = { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" },
+        javascriptreact = { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" },
+        typescript = { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" },
+        typescriptreact = { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" },
+        markdown = { "lsp", "snippets", "path", "cwd_paths", "buffer" },
+        text = { "path", "cwd_paths", "buffer" },
       })
       opts.sources.providers = vim.tbl_deep_extend("force", opts.sources.providers or {}, {
+        cwd_paths = {
+          name = "CwdPath",
+          module = "user.blink_cwd_paths",
+          score_offset = 25,
+          min_keyword_length = 1,
+          max_items = 80,
+        },
         python_imports = {
           name = "PyImport",
           module = "user.blink_python_imports",
@@ -85,9 +93,12 @@ return {
           min_keyword_length = 2,
         },
         path = {
-          score_offset = -10,
-          min_keyword_length = 2,
+          score_offset = 5,
+          min_keyword_length = 0,
           fallbacks = {},
+          opts = {
+            max_entries = 3000,
+          },
         },
         buffer = {
           enabled = function()
@@ -114,6 +125,22 @@ return {
             max_async_buffer_size = 120000,
             max_total_buffer_size = 150000,
             use_cache = true,
+          },
+        },
+      })
+
+      opts.cmdline = vim.tbl_deep_extend("force", opts.cmdline or {}, {
+        enabled = true,
+        sources = function()
+          local cmdtype = vim.fn.getcmdtype()
+          if cmdtype == "/" or cmdtype == "?" then return { "buffer" } end
+          if cmdtype == ":" or cmdtype == "@" then return { "cmdline", "path", "buffer" } end
+          return {}
+        end,
+        completion = {
+          trigger = {
+            show_on_blocked_trigger_characters = {},
+            show_on_x_blocked_trigger_characters = {},
           },
         },
       })

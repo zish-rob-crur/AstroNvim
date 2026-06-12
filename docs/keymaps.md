@@ -42,13 +42,13 @@ Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like beh
 - `<Leader>fO`: Find old files in the current working directory. / 查找当前工作目录中的最近文件。
 - `-`: Open the current directory as an editable Oil buffer. / 将当前目录作为可编辑的 Oil 缓冲区打开。
 - `<Leader>fb`: Find buffers. / 查找缓冲区。
-- `<Leader>fp`: Find buffers. / 查找缓冲区。
 - `<Leader>fg`: Find changed, staged, and untracked Git files. / 查找已修改、已暂存和未跟踪的 Git 文件。
 - `<Leader>fh`: Find help. / 查找帮助文档。
 - `<Leader>f<CR>`: Resume the previous search. / 恢复上一次搜索。
 - `<Leader>hp`: Preview the current HTML report in the default browser. / 在默认浏览器中预览当前 HTML 报告。
 - `:GitUrlCopy` / `:GitUrlCopyPermalink` / `:GitUrlOpen`: Copy or open the current GitHub/GitLab file URL from the command palette. / 从命令面板复制或打开当前文件的 GitHub/GitLab URL。
 - Press Enter in picker results to open the selected file or item. / 在选择器结果中按回车可打开选中的文件或条目。
+- Insert-mode completion includes `./`, `../`, `~/`, command-line paths, and repository-relative paths such as `artifacts/...`; code files complete bare repository paths inside strings, while Markdown/text can complete them directly. / 插入模式补全支持 `./`、`../`、`~/`、命令行路径，以及 `artifacts/...` 这类仓库相对路径；代码文件里裸仓库路径在字符串内补全，Markdown/text 可直接补全。
 
 ## Code Structure And Diagnostics / 代码结构与诊断
 
@@ -95,8 +95,13 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `<Leader>yP`: Copy the current file's absolute path. / 复制当前文件的绝对路径。
 - `<Leader>q`: Quit the current window. / 退出当前窗口。
 - `<Leader>h`: Return to the Home Screen dashboard. / 返回 Home Screen 仪表板。
-- `<Leader>Ss`: Save session. / 保存会话。
+- Sessions are auto-saved per current working directory/worktree and auto-loaded only when Neovim starts without arguments; explicit file or directory arguments such as `vim .` are respected, and stale temp-only sessions are skipped. / 会按当前工作目录/worktree 自动保存会话；只有无参数启动 Neovim 时才会自动加载，`vim .` 等显式文件或目录参数会按原意打开目标，旧的仅临时文件会话会被跳过。
+- Neo-tree's current root, expanded directories, and selected node are also saved per current working directory/worktree. / Neo-tree 当前 root、展开目录和选中节点也会按当前工作目录/worktree 保存。
+- `<Leader>Ss`: Save a named session. / 保存命名会话。
+- `<Leader>SS`: Save the current directory/worktree session. / 保存当前目录/worktree 会话。
 - `<Leader>Sl`: Load the last session. / 加载上一次会话。
+- `<Leader>S.`: Load the current directory/worktree session. / 加载当前目录/worktree 会话。
+- `<Leader>SF`: Search and load directory/worktree sessions. / 搜索并加载目录/worktree 会话。
 - `<Leader>Sr`: Save session and reload AstroNvim. / 保存会话并重载 AstroNvim。
 - `<Leader>tf` / `<Leader>th` / `<Leader>tv`: ToggleTerm float, horizontal, or vertical terminal. / 打开 ToggleTerm 浮动、水平或垂直终端。
 - `<Leader>gg`: Lazygit in ToggleTerm. / 在 ToggleTerm 中打开 Lazygit。
@@ -137,4 +142,6 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `s` / `S`: Open the file in a vertical or horizontal split. / 在垂直或水平分屏中打开文件。
 - `t`: Open the file in a new tab. / 在新标签页中打开文件。
 - `w`: Pick a target window, then open the file there. / 选择目标窗口，然后在该窗口中打开文件。
+- `yp`: Copy the selected node's relative path. / 复制当前选中文件或目录的相对路径。
+- `yP`: Copy the selected node's absolute path. / 复制当前选中文件或目录的绝对路径。
 - `q`: Close the Neo-tree window. / 关闭 Neo-tree 窗口。

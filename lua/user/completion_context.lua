@@ -38,7 +38,7 @@ local function javascript_providers(before)
     or before:match [[^%s*import%s+["'][%w@%./_-]*$]]
     or before:match [[export%s+.*from%s+["'][%w@%./_-]*$]]
   then
-    return { "js_imports", "path", "lsp" }
+    return { "js_imports", "path", "cwd_paths", "lsp" }
   end
 end
 

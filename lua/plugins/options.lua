@@ -97,9 +97,7 @@ return {
         }
       end
 
-      local function command_palette()
-        require("snacks").picker.commands()
-      end
+      local function command_palette() require("snacks").picker.commands() end
 
       local function search_project_words()
         require("snacks").picker.grep {
@@ -153,10 +151,11 @@ return {
         find_all_project_files,
         desc = "Find all files",
       }
-      opts.mappings.n["<Leader>fp"] = {
+      opts.mappings.n["<Leader>fb"] = {
         function() require("snacks").picker.buffers() end,
         desc = "Find buffers",
       }
+      opts.mappings.n["<Leader>fp"] = false
       opts.mappings.n["<Leader>f/"] = false
       opts.mappings.n["<Leader>fc"] = false
       opts.mappings.n["<Leader>fw"] = false
