@@ -10,6 +10,17 @@ return {
       opts.options.opt.autoread = true
       opts.options.g.loaded_perl_provider = 0
       opts.options.g.loaded_ruby_provider = 0
+      opts.options.g.clipboard = {
+        name = "OSC 52",
+        copy = {
+          ["+"] = require("vim.ui.clipboard.osc52").copy "+",
+          ["*"] = require("vim.ui.clipboard.osc52").copy "*",
+        },
+        paste = {
+          ["+"] = function() return { vim.fn.split(vim.fn.getreg "", "\n"), vim.fn.getregtype "" } end,
+          ["*"] = function() return { vim.fn.split(vim.fn.getreg "", "\n"), vim.fn.getregtype "" } end,
+        },
+      }
 
       opts.autocmds = opts.autocmds or {}
       opts.autocmds.auto_save_changed_files = {
