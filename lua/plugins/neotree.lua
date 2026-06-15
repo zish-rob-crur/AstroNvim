@@ -44,12 +44,12 @@ return {
         local ok_lazy, lazy = pcall(require, "lazy")
         if ok_lazy then pcall(lazy.load, { plugins = { "neo-tree.nvim" } }) end
 
-        local command = "Neotree show filesystem right"
+        local command = "Neotree show filesystem right dir=" .. vim.fn.fnameescape(cwd)
 
         if file ~= "" and vim.fn.isdirectory(file) == 1 then
           command = "Neotree show filesystem right dir=" .. vim.fn.fnameescape(file)
         elseif file ~= "" and vim.startswith(vim.fs.normalize(file), vim.fs.normalize(cwd) .. "/") then
-          command = "Neotree show filesystem reveal right"
+          command = "Neotree show filesystem reveal right dir=" .. vim.fn.fnameescape(cwd)
         end
 
         pcall(vim.cmd, command)
@@ -139,6 +139,8 @@ return {
 
       opts.filesystem = opts.filesystem or {}
       opts.filesystem.bind_to_cwd = true
+      opts.filesystem.follow_current_file = opts.filesystem.follow_current_file or {}
+      opts.filesystem.follow_current_file.enabled = false
       opts.filesystem.hijack_netrw_behavior = "disabled"
       opts.filesystem.filtered_items = opts.filesystem.filtered_items or {}
       opts.filesystem.commands = opts.filesystem.commands or {}
