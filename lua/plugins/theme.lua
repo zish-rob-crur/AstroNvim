@@ -23,6 +23,11 @@ return {
     opts = function(_, opts)
       opts.colorscheme = "github_light_high_contrast"
 
+      opts.highlights = opts.highlights or {}
+      opts.highlights.init = vim.tbl_deep_extend("force", opts.highlights.init or {}, {
+        GitSignsCurrentLineBlame = { fg = "#0969da", bg = "#ddf4ff", italic = true },
+      })
+
       opts.status = opts.status or {}
       opts.status.attributes = opts.status.attributes or {}
       opts.status.attributes.buffer_active = { bold = true, italic = false }
