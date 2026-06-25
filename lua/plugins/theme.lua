@@ -21,63 +21,34 @@ return {
   {
     "AstroNvim/astroui",
     opts = function(_, opts)
-      opts.colorscheme = "github_light_high_contrast"
+      local theme = require "user.theme"
+      local mode = theme.mode()
+      opts.colorscheme = theme.colorscheme(mode)
 
       opts.highlights = opts.highlights or {}
-      opts.highlights.init = vim.tbl_deep_extend("force", opts.highlights.init or {}, {
-        GitSignsCurrentLineBlame = { fg = "#0969da", bg = "#ddf4ff", italic = true },
-      })
+      local init_highlights = opts.highlights.init
+      opts.highlights.init = function(colors_name)
+        local highlights = {}
+        if type(init_highlights) == "function" then
+          highlights = init_highlights(colors_name) or {}
+        elseif type(init_highlights) == "table" then
+          highlights = vim.deepcopy(init_highlights)
+        end
+        return vim.tbl_deep_extend("force", highlights, theme.highlights(theme.mode()))
+      end
 
       opts.status = opts.status or {}
       opts.status.attributes = opts.status.attributes or {}
       opts.status.attributes.buffer_active = { bold = true, italic = false }
+      opts.status.colors = function(colors)
+        local current_mode = theme.mode()
+        return vim.tbl_deep_extend("force", colors, {
+          completion_fg = current_mode == "dark" and "#bdc8d8" or "#57606a",
+          completion_bg = current_mode == "dark" and "#3d444d" or "#d0d7de",
+        })
+      end
 
-      opts.status.colors = vim.tbl_deep_extend("force", opts.status.colors or {}, {
-        fg = "#24292f",
-        bg = "#d0d7de",
-        section_fg = "#24292f",
-        section_bg = "#d0d7de",
-        git_branch_fg = "#57606a",
-        git_branch_bg = "#d0d7de",
-        git_diff_bg = "#d0d7de",
-        file_info_fg = "#24292f",
-        file_info_bg = "#d0d7de",
-        diagnostics_bg = "#d0d7de",
-        completion_fg = "#57606a",
-        completion_bg = "#d0d7de",
-        lsp_bg = "#d0d7de",
-        treesitter_bg = "#d0d7de",
-        virtual_env_bg = "#d0d7de",
-        nav_bg = "#d0d7de",
-        mode_fg = "#ffffff",
-        normal = "#0969da",
-        insert = "#1a7f37",
-        visual = "#8250df",
-        replace = "#cf222e",
-        command = "#bc4c00",
-        terminal = "#1f6feb",
-        inactive = "#6e7781",
-        tabline_bg = "#d0d7de",
-        tabline_fg = "#d0d7de",
-        buffer_bg = "#d0d7de",
-        buffer_fg = "#57606a",
-        buffer_path_fg = "#6e7781",
-        buffer_close_fg = "#6e7781",
-        buffer_visible_bg = "#f6f8fa",
-        buffer_visible_fg = "#24292f",
-        buffer_visible_path_fg = "#57606a",
-        buffer_visible_close_fg = "#cf222e",
-        buffer_active_bg = "#0969da",
-        buffer_active_fg = "#ffffff",
-        buffer_active_path_fg = "#ddf4ff",
-        buffer_active_close_fg = "#ffffff",
-        buffer_overflow_bg = "#d0d7de",
-        tab_bg = "#d0d7de",
-        tab_fg = "#57606a",
-        tab_active_bg = "#0969da",
-        tab_active_fg = "#ffffff",
-        tab_close_bg = "#d0d7de",
-      })
+      theme.setup_auto_sync()
     end,
   },
 }
