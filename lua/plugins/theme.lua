@@ -6,6 +6,13 @@ return {
     priority = 1000,
   },
   {
+    "sainnhe/everforest",
+    name = "everforest",
+    lazy = false,
+    priority = 1000,
+    config = function() require("user.theme").configure() end,
+  },
+  {
     "projekt0n/github-nvim-theme",
     name = "github-theme",
     lazy = false,
@@ -23,6 +30,7 @@ return {
     opts = function(_, opts)
       local theme = require "user.theme"
       local mode = theme.mode()
+      theme.configure(mode)
       opts.colorscheme = theme.colorscheme(mode)
 
       opts.highlights = opts.highlights or {}
@@ -43,8 +51,8 @@ return {
       opts.status.colors = function(colors)
         local current_mode = theme.mode()
         return vim.tbl_deep_extend("force", colors, {
-          completion_fg = current_mode == "dark" and "#bdc8d8" or "#57606a",
-          completion_bg = current_mode == "dark" and "#3d444d" or "#d0d7de",
+          completion_fg = current_mode == "dark" and "#d3c6aa" or "#57606a",
+          completion_bg = current_mode == "dark" and "#343f44" or "#d0d7de",
         })
       end
 

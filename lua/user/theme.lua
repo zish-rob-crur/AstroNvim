@@ -1,7 +1,8 @@
 local M = {}
 
-M.dark_colorscheme = "github_dark_high_contrast"
+M.dark_colorscheme = "everforest"
 M.light_colorscheme = "github_light_high_contrast"
+M.dark_background = "medium"
 
 function M.mode()
   if vim.env.NVIM_THEME_MODE == "dark" or vim.env.NVIM_THEME_MODE == "light" then
@@ -19,11 +20,26 @@ function M.colorscheme(mode)
   return mode == "dark" and M.dark_colorscheme or M.light_colorscheme
 end
 
+function M.background(mode)
+  mode = mode or M.mode()
+  return mode == "dark" and M.dark_background or "github-light-high-contrast"
+end
+
+function M.configure(mode)
+  mode = mode or M.mode()
+  vim.o.background = mode
+  if mode == "dark" then
+    vim.g.everforest_background = M.background(mode)
+    vim.g.everforest_enable_italic = 1
+    vim.g.everforest_better_performance = 1
+  end
+end
+
 function M.highlights(mode)
   mode = mode or M.mode()
   if mode == "dark" then
     return {
-      GitSignsCurrentLineBlame = { fg = "#79c0ff", bg = "#1f2937", italic = true },
+      GitSignsCurrentLineBlame = { fg = "#7fbbb3", bg = "#343f44", italic = true },
     }
   end
 
@@ -35,10 +51,17 @@ end
 function M.apply()
   local mode = M.mode()
   local colorscheme = M.colorscheme(mode)
+  local background = M.background(mode)
 
-  if vim.g.colors_name == colorscheme and vim.o.background == mode then return end
+  if
+    vim.g.colors_name == colorscheme
+    and vim.o.background == mode
+    and (mode == "light" or vim.g.everforest_background == background)
+  then
+    return
+  end
 
-  vim.o.background = mode
+  M.configure(mode)
   local ok, err = pcall(vim.cmd.colorscheme, colorscheme)
   if not ok then
     vim.notify(("Error setting colorscheme `%s`: %s"):format(colorscheme, err), vim.log.levels.ERROR)
