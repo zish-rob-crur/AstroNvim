@@ -1,7 +1,80 @@
 -- Completion ranking tuned for coding-first suggestions.
 
+local function existing_dirs(paths)
+  local dirs = {}
+  for _, path in ipairs(paths) do
+    local expanded = vim.fn.expand(path)
+    if vim.fn.isdirectory(expanded) == 1 then table.insert(dirs, expanded) end
+  end
+  return dirs
+end
+
+local function dotagent_agent()
+  local agent = vim.env.DOTAGENT_AGENT
+  if agent == "claude-code" then return "claude" end
+  return agent
+end
+
+local function dotagent_opts()
+  local agent = dotagent_agent()
+  local prefix = vim.env.DOTAGENT_PREFIX
+  if prefix == nil or prefix == "" then prefix = agent == "codex" and "$" or "/" end
+
+  local skill_dirs
+  local command_dirs
+  if agent == "claude" then
+    skill_dirs = existing_dirs {
+      "~/.claude/skills",
+      "~/.agents/skills",
+    }
+    command_dirs = existing_dirs {
+      "~/.claude/commands",
+    }
+  elseif agent == "codex" then
+    skill_dirs = existing_dirs {
+      "~/.agents/skills",
+      "~/.codex/skills",
+    }
+    command_dirs = {}
+  else
+    skill_dirs = existing_dirs {
+      "~/.claude/skills",
+      "~/.agents/skills",
+      "~/.codex/skills",
+    }
+    command_dirs = existing_dirs {
+      "~/.claude/commands",
+    }
+  end
+
+  return {
+    prefixes = { prefix },
+    activation = {
+      mode = "contextual",
+      env_var = "DOTAGENT_EDITOR_PROMPT",
+    },
+    command_dirs = command_dirs,
+    skill_dirs = skill_dirs,
+  }
+end
+
+local function dotagent_enabled()
+  local ok, dotagent = pcall(require, "dotagent")
+  return ok and dotagent.is_buffer_enabled(vim.api.nvim_get_current_buf())
+end
+
+local function prompt_sources(fallback)
+  if dotagent_enabled() then return { "dotagent", "path", "cwd_paths", "buffer" } end
+  return fallback
+end
+
 ---@type LazySpec
 return {
+  {
+    "0xble/dotagent.nvim",
+    lazy = false,
+    opts = dotagent_opts,
+  },
   {
     "saghen/blink.cmp",
     opts = function(_, opts)
@@ -44,23 +117,47 @@ return {
 
       opts.sources = opts.sources or {}
       opts.sources.min_keyword_length = 0
-      opts.sources.default = {
-        "lsp",
-        "snippets",
-        "path",
-        "cwd_paths",
-        "buffer",
-      }
+      opts.sources.default = function()
+        return prompt_sources {
+          "lsp",
+          "snippets",
+          "path",
+          "cwd_paths",
+          "buffer",
+        }
+      end
       opts.sources.per_filetype = vim.tbl_deep_extend("force", opts.sources.per_filetype or {}, {
-        python = { "python_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" },
-        javascript = { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" },
-        javascriptreact = { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" },
-        typescript = { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" },
-        typescriptreact = { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" },
-        markdown = { "lsp", "snippets", "path", "cwd_paths", "buffer" },
-        text = { "path", "cwd_paths", "buffer" },
+        python = function()
+          return prompt_sources { "python_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" }
+        end,
+        javascript = function()
+          return prompt_sources { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" }
+        end,
+        javascriptreact = function()
+          return prompt_sources { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" }
+        end,
+        typescript = function()
+          return prompt_sources { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" }
+        end,
+        typescriptreact = function()
+          return prompt_sources { "js_imports", "lsp", "snippets", "path", "cwd_paths", "buffer" }
+        end,
+        markdown = function()
+          return prompt_sources { "lsp", "snippets", "path", "cwd_paths", "buffer" }
+        end,
+        text = function()
+          return prompt_sources { "path", "cwd_paths", "buffer" }
+        end,
       })
       opts.sources.providers = vim.tbl_deep_extend("force", opts.sources.providers or {}, {
+        dotagent = {
+          name = "Dotagent",
+          module = "dotagent.completion.blink",
+          enabled = dotagent_enabled,
+          score_offset = 140,
+          fallbacks = {},
+          min_keyword_length = 0,
+        },
         cwd_paths = {
           name = "CwdPath",
           module = "user.blink_cwd_paths",
