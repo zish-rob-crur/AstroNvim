@@ -112,13 +112,13 @@ end
 require("lazy").load { plugins = { "blink.cmp" } }
 
 local blink_config = require "blink.cmp.config"
-assert_true(has(blink_config.sources.default, "buffer"), "default sources should include buffer fallback")
+assert_true(has(value_of(blink_config.sources.default), "buffer"), "default sources should include buffer fallback")
 assert_true(
-  has(blink_config.sources.per_filetype.python, "python_imports"),
+  has(value_of(blink_config.sources.per_filetype.python), "python_imports"),
   "python sources should include python_imports"
 )
 assert_true(
-  has(blink_config.sources.per_filetype.typescript, "js_imports"),
+  has(value_of(blink_config.sources.per_filetype.typescript), "js_imports"),
   "typescript sources should include js_imports"
 )
 assert_true(value_of(blink_config.sources.providers.lsp.async, {}) == true, "lsp source should be async")

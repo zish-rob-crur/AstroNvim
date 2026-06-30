@@ -61,6 +61,14 @@ return {
             end_point = "https://api.deepseek.com/beta/completions",
             model = "deepseek-v4-flash",
             stream = true,
+            template = {
+              prompt = function(...)
+                return require("user.shell_context").fim_prompt(...)
+              end,
+              suffix = function(...)
+                return require("user.shell_context").fim_suffix(...)
+              end,
+            },
             optional = {
               max_tokens = 128,
               top_p = 0.9,
@@ -97,6 +105,15 @@ return {
   {
     "AstroNvim/astrocore",
     opts = function(_, opts)
+      opts.autocmds = opts.autocmds or {}
+      opts.autocmds.zish_shell_context_cleanup = {
+        {
+          event = "VimLeavePre",
+          desc = "Remove temporary shell context for agent editor",
+          callback = function() require("user.shell_context").cleanup() end,
+        },
+      }
+
       opts.mappings = opts.mappings or {}
       opts.mappings.n = opts.mappings.n or {}
       opts.mappings.n["<Leader>ua"] = {
