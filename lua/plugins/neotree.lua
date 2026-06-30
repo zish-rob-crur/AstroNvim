@@ -140,7 +140,8 @@ return {
       opts.filesystem = opts.filesystem or {}
       opts.filesystem.bind_to_cwd = true
       opts.filesystem.follow_current_file = opts.filesystem.follow_current_file or {}
-      opts.filesystem.follow_current_file.enabled = false
+      opts.filesystem.follow_current_file.enabled = true
+      opts.filesystem.follow_current_file.leave_dirs_open = true
       opts.filesystem.hijack_netrw_behavior = "disabled"
       opts.filesystem.filtered_items = opts.filesystem.filtered_items or {}
       opts.filesystem.commands = opts.filesystem.commands or {}
