@@ -122,6 +122,12 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `<Leader>tw`: Open a web page with `w3m` in a terminal after entering a URL. / 输入 URL 后，在终端中用 `w3m` 打开网页。
 - `<Leader>tW`: Open the URL under the cursor with `w3m` in a terminal. / 在终端中用 `w3m` 打开光标下的 URL。
 
+## AI Completion / AI 补全
+
+- `<Leader>ua`: Toggle Minuet inline completion. / 开关 Minuet 行内 AI 补全。
+- `<Leader>uA`: Select the Minuet provider, Qwen, Bailian, or DeepSeek, and persist it to `~/.env`. / 选择 Minuet provider（Qwen、百炼或 DeepSeek），并写回 `~/.env`。
+- `:ZishMinuetProvider qwen` / `:ZishMinuetProvider bailian` / `:ZishMinuetProvider deepseek`: Switch provider directly. / 直接切换 provider。
+
 ## Markdown / Markdown 编辑
 
 > These mappings are registered only in Markdown buffers. / 这些映射只会在 Markdown 缓冲区中注册。
