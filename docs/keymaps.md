@@ -131,7 +131,7 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `<Leader>mc`: Close the live Markdown browser preview. / 关闭 Markdown 实时浏览器预览。
 - `<Leader>mo`: Toggle the Markdown heading outline with Aerial. / 使用 Aerial 切换 Markdown 标题大纲。
 - `<Leader>mn`: Toggle the Markdown section outline with Aerial. / 使用 Aerial 切换 Markdown 章节大纲。
-- `<Leader>jj`: Toggle Jieba word motions for the current buffer. When enabled, `w`, `b`, `e`, and `ge` move by Chinese words. / 为当前缓冲区切换 Jieba 中文分词移动。启用后，`w`、`b`、`e` 和 `ge` 会按中文词移动。
+- `<Leader>jj`: Toggle Jieba word motions for the current buffer. Markdown/text files with a high Chinese-character ratio enable it automatically after a short delay; manual toggling overrides auto-detection. When enabled, `w`, `b`, `e`, and `ge` move by Chinese words. / 为当前缓冲区切换 Jieba 中文分词移动。中文字符占比较高的 Markdown/文本文件会在短暂延迟后自动启用；手动切换会覆盖自动检测。启用后，`w`、`b`、`e` 和 `ge` 会按中文词移动。
 - `]m` / `[m`: Jump to the next or previous Markdown heading. / 跳转到下一个或上一个 Markdown 标题。
 
 ### Neo-tree / Neo-tree 文件树
