@@ -27,6 +27,25 @@ You can also just clone this repository directly if you do not want to track you
 git clone https://github.com/<your_user>/<your_repository> ~/.config/nvim
 ```
 
+#### Install native dependencies
+
+Chinese word motions and `<Leader>jw` use `neo451/jieba.nvim` with its native
+`cppjieba` Lua rock. On macOS, install XMake before the first Neovim launch:
+
+```shell
+brew install xmake
+```
+
+A separate system-wide LuaRocks installation is not required. `lazy.nvim`
+bootstraps Hererocks/LuaRocks and installs the native module under
+`~/.local/share/nvim/lua-rocks`. Rocks support and its required root are
+configured in `lua/lazy_setup.lua`; do not disable or rename them while using
+`jieba.nvim`.
+
+The first launch downloads and builds the native dependencies. Wait for Lazy
+to finish, restart Neovim if requested, and use `:checkhealth lazy` if the build
+does not complete. XMake 3.0.9 is the tested version for macOS arm64.
+
 #### Start Neovim
 
 ```shell

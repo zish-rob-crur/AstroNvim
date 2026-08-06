@@ -16,7 +16,9 @@ require("lazy").setup({
 } --[[@as LazySpec]], {
   -- Configure any other `lazy.nvim` configuration options here
   install = { colorscheme = { "github_light_high_contrast", "everforest", "astrotheme", "habamax" } },
-  rocks = { enabled = false },
+  -- "lua-rocks" intentionally contains "lua": xmake's lua.module rule uses
+  -- that substring to detect LuaRocks-provided headers and avoid linking Lua 5.4.
+  rocks = { enabled = true, root = vim.fn.stdpath "data" .. "/lua-rocks" },
   ui = { backdrop = 100 },
   performance = {
     rtp = {

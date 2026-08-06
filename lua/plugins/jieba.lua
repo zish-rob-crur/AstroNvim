@@ -1,142 +1,39 @@
-local jieba_filetypes = {
-  markdown = true,
-  text = true,
-}
+local jieba_instance
 
-local jieba_modes = { "n", "x", "o" }
+-- LuaRocks installs its xmake build backend into the plugin's private tree.
+-- Expose that tree to the LuaRocks subprocess during a clean first install.
+local rocks_root = vim.fn.stdpath "data" .. "/lua-rocks"
+local jieba_rocks_lua = rocks_root .. "/jieba.nvim/share/lua/5.1"
+local luarocks_lua_path = table.concat({ jieba_rocks_lua .. "/?.lua", jieba_rocks_lua .. "/?/init.lua" }, ";")
+local jieba_rocks_cpath = rocks_root .. "/jieba.nvim/lib/lua/5.1/?.so"
 
-local jieba_motions = {
-  w = "<Plug>(Jieba_w)",
-  W = "<Plug>(Jieba_W)",
-  b = "<Plug>(Jieba_b)",
-  B = "<Plug>(Jieba_B)",
-  e = "<Plug>(Jieba_e)",
-  E = "<Plug>(Jieba_E)",
-  ge = "<Plug>(Jieba_ge)",
-  gE = "<Plug>(Jieba_gE)",
-}
+if not (vim.env.LUA_PATH or ""):find(jieba_rocks_lua, 1, true) then
+  vim.env.LUA_PATH = luarocks_lua_path .. ";" .. (vim.env.LUA_PATH or ";;")
+end
+if not package.path:find(jieba_rocks_lua, 1, true) then package.path = luarocks_lua_path .. ";" .. package.path end
+if not package.cpath:find(jieba_rocks_cpath, 1, true) then package.cpath = jieba_rocks_cpath .. ";" .. package.cpath end
 
-local auto_enable = {
-  delay_ms = 500,
-  max_sample_bytes = 64 * 1024,
-  sample_window_lines = 64,
-  min_han_characters = 10,
-  min_han_ratio = 0.3,
-}
-
-local python3_venv = vim.fn.stdpath "data" .. "/python3"
-local python3_host = python3_venv .. "/bin/python3"
-
-if vim.fn.executable(python3_host) == 1 then vim.g.python3_host_prog = python3_host end
-
-local function run(cmd)
-  local result = vim.system(cmd, { text = true }):wait()
-  if result.code == 0 then return end
-
-  error(
-    ("command failed: %s\n%s%s"):format(table.concat(cmd, " "), result.stdout or "", result.stderr or "")
-  )
+local jieba_rocks_bin = rocks_root .. "/jieba.nvim/bin"
+if not (vim.env.PATH or ""):find(jieba_rocks_bin, 1, true) then
+  vim.env.PATH = jieba_rocks_bin .. ":" .. (vim.env.PATH or "")
 end
 
-local function can_import(python, module)
-  if python == "" or vim.fn.executable(python) ~= 1 then return false end
+local function load_jieba_wrapper()
+  if package.loaded["cppjieba.jieba"] then return end
 
-  local result = vim.system({ python, "-c", ("import %s"):format(module) }, { text = true }):wait()
-  return result.code == 0
-end
-
-local function ensure_python3_host()
-  if vim.fn.executable(python3_host) ~= 1 then
-    local python3 = vim.fn.exepath "python3"
-    if python3 == "" then error "python3 is required by jieba.vim" end
-
-    run { python3, "-m", "venv", python3_venv }
+  -- Load the rock directly so lazy.nvim does not select the Git checkout's
+  -- incomplete Lua wrapper (the dictionaries only exist in the rock tree).
+  if not package.loaded.cppjieba then
+    local binary = rocks_root .. "/jieba.nvim/lib/lua/5.1/cppjieba.so"
+    local load_binary, binary_err = package.loadlib(binary, "luaopen_cppjieba")
+    assert(load_binary, binary_err)
+    package.loaded.cppjieba = load_binary()
   end
 
-  if not can_import(python3_host, "pynvim") then
-    run { python3_host, "-m", "pip", "install", "--upgrade", "pip", "pynvim" }
-  end
-end
-
-local function has_python3_provider()
-  if vim.g.loaded_python3_provider == 0 then return false end
-
-  local ok, err = pcall(ensure_python3_host)
-  if not ok then
-    vim.schedule(function()
-      vim.notify(("jieba.vim disabled: %s"):format(err), vim.log.levels.WARN)
-    end)
-    return false
-  end
-
-  vim.g.python3_host_prog = python3_host
-  return vim.fn.has "python3" == 1
-end
-
-local function python3_provider_enabled()
-  return vim.g.loaded_python3_provider ~= 0
-end
-
-local function is_jieba_filetype(bufnr)
-  return jieba_filetypes[vim.bo[bufnr].filetype] == true
-end
-
-local function has_command(name)
-  return vim.fn.exists(":" .. name) == 2
-end
-
-local function ensure_jieba_command()
-  if has_command "JiebaInit" then return true end
-
-  local ok_lazy, lazy = pcall(require, "lazy")
-  if ok_lazy then pcall(lazy.load, { plugins = { "jieba.vim" } }) end
-  if has_command "JiebaInit" then return true end
-
-  vim.g.loaded_jieba_vim = nil
-  pcall(vim.cmd.runtime, "plugin/jieba_vim.vim")
-  return has_command "JiebaInit"
-end
-
-local function ensure_jieba_initialized()
-  if vim.g.jieba_vim_initialized == 1 then return true end
-
-  if not has_python3_provider() then return false end
-
-  if not ensure_jieba_command() then
-    vim.notify("jieba.vim disabled: JiebaInit command is unavailable", vim.log.levels.WARN)
-    return false
-  end
-
-  local ok, err = pcall(vim.cmd.JiebaInit)
-  if not ok then
-    vim.notify(("jieba.vim disabled: %s"):format(err), vim.log.levels.WARN)
-    return false
-  end
-
-  return true
-end
-
-local function set_jieba_keymaps(bufnr)
-  for lhs, rhs in pairs(jieba_motions) do
-    vim.keymap.set(jieba_modes, lhs, rhs, {
-      buffer = bufnr,
-      silent = true,
-      remap = true,
-      desc = "Jieba word motion " .. lhs,
-    })
-  end
-
-  vim.b[bufnr].jieba_word_motion_enabled = true
-end
-
-local function unset_jieba_keymaps(bufnr)
-  for lhs in pairs(jieba_motions) do
-    for _, mode in ipairs(jieba_modes) do
-      pcall(vim.keymap.del, mode, lhs, { buffer = bufnr })
-    end
-  end
-
-  vim.b[bufnr].jieba_word_motion_enabled = false
+  local wrapper = jieba_rocks_lua .. "/cppjieba/jieba.lua"
+  local load_wrapper, wrapper_err = loadfile(wrapper)
+  assert(load_wrapper, wrapper_err)
+  package.loaded["cppjieba.jieba"] = load_wrapper()
 end
 
 local function is_han_codepoint(codepoint)
@@ -147,8 +44,7 @@ local function is_han_codepoint(codepoint)
     or (codepoint >= 0x30000 and codepoint <= 0x323AF)
 end
 
-local function count_language_characters(text)
-  local han, latin = 0, 0
+local function contains_han(text)
   local index = 1
 
   while index <= #text do
@@ -166,140 +62,182 @@ local function count_language_characters(text)
       width = 3
     elseif first >= 0xF0 and first <= 0xF4 and index + 3 <= #text then
       local second, third, fourth = text:byte(index + 1, index + 3)
-      codepoint = (first - 0xF0) * 0x40000
-        + (second - 0x80) * 0x1000
-        + (third - 0x80) * 0x40
-        + (fourth - 0x80)
+      codepoint = (first - 0xF0) * 0x40000 + (second - 0x80) * 0x1000 + (third - 0x80) * 0x40 + (fourth - 0x80)
       width = 4
     else
       codepoint, width = first, 1
     end
 
-    if is_han_codepoint(codepoint) then
-      han = han + 1
-    elseif (codepoint >= 0x41 and codepoint <= 0x5A) or (codepoint >= 0x61 and codepoint <= 0x7A) then
-      latin = latin + 1
-    end
-
+    if is_han_codepoint(codepoint) then return true end
     index = index + width
   end
 
-  return han, latin
+  return false
 end
 
-local function sample_language_characters(bufnr)
-  local line_count = vim.api.nvim_buf_line_count(bufnr)
-  local window = auto_enable.sample_window_lines
-  local ranges
+local function get_jieba()
+  if jieba_instance then return jieba_instance end
 
-  -- Sample the beginning, middle, and end instead of scanning a potentially huge file.
-  if line_count <= window * 3 then
-    ranges = { { 0, line_count } }
-  else
-    ranges = {
-      { 0, window },
-      { math.floor((line_count - window) / 2), math.floor((line_count - window) / 2) + window },
-      { line_count - window, line_count },
-    }
+  load_jieba_wrapper()
+
+  -- Reuse the instance created for w/b/e/ge so the dictionary is loaded once.
+  local wordmotion = require "wordmotion.nvim.jieba"
+  wordmotion.init()
+  jieba_instance = assert(wordmotion.motion and wordmotion.motion.jieba, "Failed to initialize cppjieba")
+
+  -- This binding's generated destructor crashes on macOS when Lua runs GC.
+  -- Keep the single native dictionary alive until the process releases it.
+  local native_metatable = debug.getmetatable(jieba_instance.jieba)
+  if native_metatable then native_metatable.__gc = nil end
+
+  return jieba_instance
+end
+
+local function setup_word_motions()
+  local mappings = {
+    w = { modes = { "n", "x" }, begin = true, forward = true },
+    b = { modes = { "n", "x" }, begin = true, forward = false },
+    e = { modes = { "n", "x" }, begin = false, forward = true },
+    ge = { modes = { "n", "x" }, begin = false, forward = false },
+    iw = { modes = { "x" }, around = false },
+    aw = { modes = { "x" }, around = true },
+  }
+
+  for lhs, mapping in pairs(mappings) do
+    vim.keymap.set(mapping.modes, lhs, function()
+      get_jieba()
+      local begin_or_around = mapping.around
+      if begin_or_around == nil then begin_or_around = mapping.begin end
+      require("wordmotion.nvim.jieba").motion:keymap(begin_or_around, mapping.forward)
+    end, { desc = "Jieba word motion " .. lhs })
   end
+end
 
-  local han, latin, sampled_bytes = 0, 0, 0
-  for _, range in ipairs(ranges) do
-    for _, line in ipairs(vim.api.nvim_buf_get_lines(bufnr, range[1], range[2], false)) do
-      local remaining_bytes = auto_enable.max_sample_bytes - sampled_bytes
-      if remaining_bytes <= 0 then return han, latin end
+local function is_jump_target(line, token, byte_col)
+  if token == "" or (not token:find "[%w_]" and not contains_han(token)) then return false end
 
-      local sample = line:sub(1, remaining_bytes)
-      local line_han, line_latin = count_language_characters(sample)
-      han = han + line_han
-      latin = latin + line_latin
-      sampled_bytes = sampled_bytes + #sample + 1
+  -- Treat hyphenated ASCII text as one target: only label its first segment.
+  if token:match "^[%w_]+$" and byte_col > 0 and line:sub(byte_col, byte_col) == "-" then return false end
+
+  return true
+end
+
+local function jieba_matcher(win)
+  local buf = vim.api.nvim_win_get_buf(win)
+  if vim.bo[buf].buftype ~= "" then return {} end
+
+  local first_line, last_line
+
+  vim.api.nvim_win_call(win, function()
+    first_line = vim.fn.line "w0"
+    last_line = vim.fn.line "w$"
+  end)
+
+  local lines = vim.api.nvim_buf_get_lines(buf, first_line - 1, last_line, false)
+  local matches = {}
+  local jieba = get_jieba()
+
+  for line_offset, line in ipairs(lines) do
+    local byte_col = 0
+
+    for _, token in ipairs(jieba:cut(line)) do
+      if is_jump_target(line, token, byte_col) then
+        local pos = { first_line + line_offset - 1, byte_col }
+        matches[#matches + 1] = {
+          pos = pos,
+          -- Flash uses end_pos to place an "after" label. Keeping the range
+          -- at the first byte makes the label overlay the token's first glyph.
+          end_pos = pos,
+        }
+      end
+
+      byte_col = byte_col + #token
     end
   end
 
-  return han, latin
+  return matches
 end
 
-local function should_auto_enable(bufnr)
-  local han, latin = sample_language_characters(bufnr)
-  local language_characters = han + latin
-  return han >= auto_enable.min_han_characters
-    and language_characters > 0
-    and han / language_characters >= auto_enable.min_han_ratio
-end
+local function label_code(index, labels, width)
+  local code = {}
 
-local function auto_enable_jieba(bufnr)
-  if not vim.api.nvim_buf_is_valid(bufnr) or not vim.api.nvim_buf_is_loaded(bufnr) then return end
-  if vim.api.nvim_get_current_buf() ~= bufnr then return end
-  if not is_jieba_filetype(bufnr) or vim.bo[bufnr].buftype ~= "" or vim.bo[bufnr].binary then return end
-  if vim.b[bufnr].jieba_auto_check_done or vim.b[bufnr].jieba_word_motion_enabled then return end
-
-  vim.b[bufnr].jieba_auto_check_done = true
-  if should_auto_enable(bufnr) and ensure_jieba_initialized() then set_jieba_keymaps(bufnr) end
-end
-
-local function schedule_auto_enable(bufnr)
-  if not vim.api.nvim_buf_is_valid(bufnr) then return end
-  if vim.b[bufnr].jieba_auto_check_done or vim.b[bufnr].jieba_word_motion_enabled then return end
-  if vim.b[bufnr].jieba_auto_check_scheduled then return end
-
-  vim.b[bufnr].jieba_auto_check_scheduled = true
-  vim.defer_fn(function()
-    if not vim.api.nvim_buf_is_valid(bufnr) then return end
-    vim.b[bufnr].jieba_auto_check_scheduled = false
-    auto_enable_jieba(bufnr)
-  end, auto_enable.delay_ms)
-end
-
-local function toggle_jieba_word_motion(bufnr)
-  bufnr = bufnr == 0 and vim.api.nvim_get_current_buf() or bufnr
-
-  if not is_jieba_filetype(bufnr) then
-    vim.notify("Jieba word motions are only available in Markdown/text buffers", vim.log.levels.WARN)
-    return
+  for position = width, 1, -1 do
+    local digit = (index - 1) % #labels + 1
+    code[position] = labels[digit]
+    index = math.floor((index - 1) / #labels) + 1
   end
 
-  vim.b[bufnr].jieba_auto_check_done = true
+  return table.concat(code)
+end
 
-  if vim.b[bufnr].jieba_word_motion_enabled then
-    unset_jieba_keymaps(bufnr)
-    vim.notify("Jieba word motions disabled; restored native w/b/e", vim.log.levels.INFO)
-  else
-    if not ensure_jieba_initialized() then return end
-    set_jieba_keymaps(bufnr)
-    vim.notify("Jieba word motions enabled: w/b/e/ge now move by Chinese words", vim.log.levels.INFO)
+local function hierarchical_labeler(matches, state)
+  local labels = state:labels()
+  if #labels == 0 then return end
+
+  local width, capacity = 1, #labels
+  while capacity < #matches do
+    width = width + 1
+    capacity = capacity * #labels
   end
+
+  local prefix = state.pattern()
+  for index, match in ipairs(matches) do
+    local code = label_code(index, labels, width)
+    if code:sub(1, #prefix) == prefix then
+      local remaining = code:sub(#prefix + 1)
+      match.label = remaining ~= "" and remaining or false
+    else
+      match.label = false
+    end
+  end
+end
+
+local function jump_to_chinese_word()
+  require("flash").jump {
+    matcher = jieba_matcher,
+    labeler = hierarchical_labeler,
+    search = {
+      -- The matcher ignores the typed pattern. It is used only as the prefix
+      -- for hierarchical labels when visible targets exceed the alphabet.
+      max_length = false,
+      multi_window = true,
+    },
+    label = {
+      uppercase = false,
+      before = false,
+      after = { 0, 0 },
+      style = "overlay",
+      -- Keep the complete hierarchical code internally, but only render the
+      -- next key. This cuts visual width without changing the input sequence.
+      format = function(opts) return { { opts.match.label:sub(1, 1), opts.hl_group } } end,
+    },
+    highlight = {
+      matches = false,
+      backdrop = true,
+    },
+    jump = {
+      pos = "start",
+      autojump = false,
+    },
+  }
 end
 
 return {
   {
-    "kkew3/jieba.vim",
-    branch = "main",
-    build = ensure_python3_host,
-    cond = python3_provider_enabled,
-    cmd = { "JiebaInit", "JiebaPreviewCancel", "JiebaToggle" },
+    "neo451/jieba.nvim",
+    lazy = true,
+    module = false,
+    init = setup_word_motions,
+  },
+  {
+    "folke/flash.nvim",
     keys = {
       {
-        "<Leader>jj",
-        function() toggle_jieba_word_motion(0) end,
-        ft = { "markdown", "text" },
-        desc = "Toggle Chinese word motions",
+        "<Leader>jw",
+        jump_to_chinese_word,
+        mode = { "n", "x", "o" },
+        desc = "Jump to Chinese word",
       },
     },
-    init = function()
-      vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
-        callback = function(args)
-          if is_jieba_filetype(args.buf) then schedule_auto_enable(args.buf) end
-        end,
-        desc = "Enable Jieba word motions for Chinese-heavy text buffers",
-      })
-    end,
-    config = function()
-      vim.api.nvim_create_user_command(
-        "JiebaToggle",
-        function() toggle_jieba_word_motion(0) end,
-        { desc = "Toggle Jieba Chinese word motions in the current buffer" }
-      )
-    end,
   },
 }

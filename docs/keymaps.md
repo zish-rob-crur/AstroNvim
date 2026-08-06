@@ -14,6 +14,14 @@
 
 - `s`: Flash jump. Type 1-2 characters, then pick a label. / Flash 跳转。输入 1 到 2 个字符，然后选择标签。
 - `S`: Flash Treesitter jump by syntax node. / 按语法节点执行 Flash Treesitter 跳转。
+- `<Leader>jw`: Label all visible Chinese and ASCII word starts with Flash.
+  Labels automatically use multiple stages when the screen has many targets,
+  but each stage shows only the next key; UI sidebars are ignored. /
+  使用 Flash 标记屏幕内所有可见的中文及 ASCII 词首；目标较多时自动分层，
+  每层只显示下一按键，并忽略 UI 侧边栏。
+- `w` / `b` / `e` / `ge`: Move globally by Jieba words; `iw` / `aw`
+  select a Jieba word in Visual mode. /
+  在所有缓冲区中按 Jieba 分词移动；可视模式下用 `iw` / `aw` 选择一个 Jieba 词。
 - `/` or `?`: Flash labels are enabled during search. / 使用 `/` 或 `?` 搜索时会启用 Flash 标签。
 - `<C-s>` in command-line search: toggle Flash search labels. / 在命令行搜索中按 `<C-s>`：切换 Flash 搜索标签。
 
@@ -137,7 +145,6 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `<Leader>mc`: Close the live Markdown browser preview. / 关闭 Markdown 实时浏览器预览。
 - `<Leader>mo`: Toggle the Markdown heading outline with Aerial. / 使用 Aerial 切换 Markdown 标题大纲。
 - `<Leader>mn`: Toggle the Markdown section outline with Aerial. / 使用 Aerial 切换 Markdown 章节大纲。
-- `<Leader>jj`: Toggle Jieba word motions for the current buffer. Markdown/text files with a high Chinese-character ratio enable it automatically after a short delay; manual toggling overrides auto-detection. When enabled, `w`, `b`, `e`, and `ge` move by Chinese words. / 为当前缓冲区切换 Jieba 中文分词移动。中文字符占比较高的 Markdown/文本文件会在短暂延迟后自动启用；手动切换会覆盖自动检测。启用后，`w`、`b`、`e` 和 `ge` 会按中文词移动。
 - `]m` / `[m`: Jump to the next or previous Markdown heading. / 跳转到下一个或上一个 Markdown 标题。
 
 ### Neo-tree / Neo-tree 文件树
