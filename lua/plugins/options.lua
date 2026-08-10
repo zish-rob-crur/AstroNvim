@@ -39,6 +39,31 @@ return {
           end,
         },
       }
+      opts.autocmds.copy_unsaved_buffer_on_exit = {
+        {
+          event = "BufUnload",
+          desc = "Copy unsaved buffer to the clipboard before discarding it",
+          callback = function(args)
+            local bufnr = args.buf
+            if not vim.api.nvim_buf_is_valid(bufnr) or not vim.api.nvim_buf_is_loaded(bufnr) then return end
+            if not vim.bo[bufnr].modified then return end
+
+            local contents = table.concat(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false), "\n")
+            if vim.bo[bufnr].endofline then contents = contents .. "\n" end
+
+            vim.fn.setreg('"', contents, "v")
+            local copied, err = pcall(vim.fn.setreg, "+", contents, "v")
+            local name = vim.api.nvim_buf_get_name(bufnr)
+            name = name == "" and "[No Name]" or vim.fn.fnamemodify(name, ":~:.")
+
+            if copied then
+              vim.notify("Unsaved changes copied to clipboard: " .. name, vim.log.levels.WARN)
+            else
+              vim.notify("Could not copy unsaved changes to clipboard: " .. tostring(err), vim.log.levels.ERROR)
+            end
+          end,
+        },
+      }
       opts.autocmds.auto_reload_changed_files = {
         {
           event = { "VimEnter", "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" },
