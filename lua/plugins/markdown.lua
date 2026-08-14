@@ -10,6 +10,29 @@ local function set_markdown_nav_keymaps(bufnr)
   map("[m", function() require("aerial").prev() end, "Previous Markdown heading")
 end
 
+local function find_available_port(address, first_port, last_port)
+  local uv = vim.uv or vim.loop
+
+  local function try_port(port)
+    local socket = uv.new_tcp()
+    if not socket then return end
+
+    local bind_result = socket:bind(address, port)
+    local listen_result = bind_result ~= nil and socket:listen(1, function() end) or nil
+    local socket_name = listen_result ~= nil and socket:getsockname() or nil
+    socket:close()
+
+    return socket_name and socket_name.port or nil
+  end
+
+  for port = first_port, last_port do
+    local available_port = try_port(port)
+    if available_port then return available_port end
+  end
+
+  return assert(try_port(0), "Unable to allocate a port for Markdown live preview")
+end
+
 ---@type LazySpec
 return {
   {
@@ -93,14 +116,28 @@ return {
     cmd = { "LivePreview" },
     dependencies = { "folke/snacks.nvim" },
     config = function()
-      require("livepreview.config").set {
+      local address = "127.0.0.1"
+      local live_preview_config = require "livepreview.config"
+      live_preview_config.set {
         port = 5500,
         browser = "default",
         dynamic_root = false,
         sync_scroll = true,
         picker = "snacks.picker",
-        address = "127.0.0.1",
+        address = address,
       }
+
+      -- FileType loading can happen long before the server starts, so select the
+      -- port immediately before binding instead of reserving one during setup.
+      local live_preview = require "livepreview"
+      local start = live_preview.start
+      live_preview.start = function(filepath, port)
+        if not live_preview.is_running() then
+          port = find_available_port(address, 5500, 5599)
+          live_preview_config.config.port = port
+        end
+        return start(filepath, port)
+      end
     end,
   },
   {

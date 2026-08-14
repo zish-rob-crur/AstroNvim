@@ -121,6 +121,14 @@ return {
         require("snacks").picker.files {
           cwd = git_root(),
           exclude = noisy_search_excludes,
+          matcher = { sort_empty = true },
+          sort = { fields = { "score:desc", "mtime:desc", "idx" } },
+          transform = function(item)
+            local path = require("snacks.picker.util").path(item)
+            local stat = path and uv.fs_stat(path)
+            local mtime = stat and stat.mtime
+            item.mtime = mtime and (mtime.sec + (mtime.nsec or 0) / 1e9) or 0
+          end,
         }
       end
 
