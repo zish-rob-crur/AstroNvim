@@ -113,6 +113,17 @@ require("lazy").load { plugins = { "blink.cmp" } }
 
 local blink_config = require "blink.cmp.config"
 assert_true(has(value_of(blink_config.sources.default), "buffer"), "default sources should include buffer fallback")
+local path_match
+for _, match in ipairs(vim.fn.getmatches()) do
+  if match.group == "UserPath" then path_match = match end
+end
+assert_true(
+  path_match
+    and vim.fn.matchstr("open @docs/keymaps.md", path_match.pattern) == "@docs/keymaps.md"
+    and vim.fn.matchstr("open docs/keymaps.md", path_match.pattern) == "docs/keymaps.md"
+    and vim.fn.matchstr("open '/Users/test/My File.md'", path_match.pattern) == "/Users/test/My File.md",
+  "inline paths should be highlighted"
+)
 assert_true(
   has(value_of(blink_config.sources.per_filetype.python), "python_imports"),
   "python sources should include python_imports"
@@ -130,6 +141,10 @@ assert_true(
 assert_true(
   value_of(blink_config.sources.providers.buffer.max_items, {}, {}) == 8,
   "buffer fallback should stay capped"
+)
+assert_true(
+  value_of(blink_config.sources.providers.cwd_paths.min_keyword_length, {}) == 0,
+  "@ file paths should trigger before a query is typed"
 )
 
 local astrolsp_opts = require("lazy.core.config").plugins.astrolsp.opts.config
@@ -163,6 +178,30 @@ for _, autocmd in ipairs(completion_autocmds) do
   end
 end
 assert_true(has_context_autocmd, "TextChangedI context completion autocmd should be registered")
+
+local original_cwd = vim.fn.getcwd()
+local path_root = vim.fn.tempname()
+vim.fn.mkdir(path_root .. "/lua/user", "p")
+vim.fn.writefile({ "return {}" }, path_root .. "/lua/user/completion.lua")
+vim.cmd("cd " .. vim.fn.fnameescape(path_root))
+
+local cwd_paths_source = require("user.blink_cwd_paths").new()
+local at_path_labels = labels_from_source(cwd_paths_source, "markdown", "@")
+local edited_result
+cwd_paths_source:get_completions({
+  bufnr = vim.api.nvim_get_current_buf(),
+  line = "check @lua/us",
+  cursor = { 1, #"check @lua/us" },
+}, function(items) edited_result = items end)
+local first_edit = edited_result and edited_result.items and edited_result.items[1] and edited_result.items[1].textEdit
+assert_true(
+  has(cwd_paths_source:get_trigger_characters(), "@")
+    and has(at_path_labels, "lua/user/completion.lua")
+    and first_edit
+    and first_edit.range.start.character == #"check @",
+  "@ should recursively complete files while preserving the prefix"
+)
+vim.cmd("cd " .. vim.fn.fnameescape(original_cwd))
 
 local python_source = require("user.blink_python_imports").new()
 assert_true(

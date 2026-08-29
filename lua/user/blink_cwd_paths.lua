@@ -15,6 +15,9 @@ end
 
 local function path_token(ctx)
   local before = line_before_cursor(ctx)
+  local mention = before:match "@([^%s@]*)$"
+  if mention ~= nil then return mention, true end
+
   local quoted_token = before:match [[["'`]%s*([%w%._~/%-]+)$]]
   if quoted_token then return quoted_token end
 
@@ -30,6 +33,25 @@ local function path_token(ctx)
   if not has_path_signal and not PATHLIKE_FILETYPES[vim.bo[ctx.bufnr].filetype] then return nil end
 
   return token
+end
+
+local function mention_items()
+  local paths = vim.fn.systemlist { "rg", "--files", "--hidden", "--glob", "!.git", "--glob", "!.git/**" }
+  if vim.v.shell_error ~= 0 then return {} end
+
+  local kind = require("blink.cmp.types").CompletionItemKind.File
+  table.sort(paths)
+  return vim.tbl_map(
+    function(path)
+      return {
+        label = path,
+        kind = kind,
+        insertText = path,
+        detail = "@ file · " .. vim.fn.getcwd(),
+      }
+    end,
+    paths
+  )
 end
 
 local function resolve_base(ctx, token)
@@ -87,16 +109,24 @@ end
 
 function M.new() return setmetatable({}, { __index = M }) end
 
+function M:get_trigger_characters() return { "@" } end
+
 function M:get_completions(ctx, callback)
-  local token = path_token(ctx)
-  if not token then
+  local token, mention = path_token(ctx)
+  if token == nil then
     callback { is_incomplete_forward = false, is_incomplete_backward = false, items = {} }
     return
   end
 
-  local dir, prefix = resolve_base(ctx, token)
-  local start_col = ctx.cursor[2] - #prefix
-  local items = scandir(dir, prefix, 80)
+  local items, start_col
+  if mention then
+    items = mention_items()
+    start_col = ctx.cursor[2] - #token
+  else
+    local dir, prefix = resolve_base(ctx, token)
+    items = scandir(dir, prefix, 80)
+    start_col = ctx.cursor[2] - #prefix
+  end
 
   for _, item in ipairs(items) do
     item.textEdit = {
@@ -109,8 +139,8 @@ function M:get_completions(ctx, callback)
   end
 
   callback {
-    is_incomplete_forward = true,
-    is_incomplete_backward = true,
+    is_incomplete_forward = not mention,
+    is_incomplete_backward = not mention,
     items = items,
   }
 end

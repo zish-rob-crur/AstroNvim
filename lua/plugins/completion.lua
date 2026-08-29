@@ -68,6 +68,13 @@ local function prompt_sources(fallback)
   return fallback
 end
 
+local PATH_PATTERN =
+  [[\v(\@[[:alnum:]_.~/-]+|[[:alnum:]_.~-]+/[[:alnum:]_.~/-]+|'\zs[^']+/[^']+\ze'|"\zs[^"]+/[^"]+\ze")]]
+
+local function highlight_paths()
+  if not vim.w.user_path_match then vim.w.user_path_match = vim.fn.matchadd("UserPath", PATH_PATTERN, 200) end
+end
+
 ---@type LazySpec
 return {
   {
@@ -162,8 +169,8 @@ return {
           name = "CwdPath",
           module = "user.blink_cwd_paths",
           score_offset = 25,
-          min_keyword_length = 1,
-          max_items = 80,
+          min_keyword_length = 0,
+          max_items = 100,
         },
         python_imports = {
           name = "PyImport",
@@ -246,7 +253,14 @@ return {
   {
     "AstroNvim/astrocore",
     opts = function(_, opts)
+      highlight_paths()
       opts.autocmds = opts.autocmds or {}
+      opts.autocmds.zish_path_highlight = {
+        {
+          event = { "BufWinEnter", "WinNew" },
+          callback = highlight_paths,
+        },
+      }
       opts.autocmds.zish_context_completion = {
         {
           event = "TextChangedI",

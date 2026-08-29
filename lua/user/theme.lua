@@ -39,11 +39,13 @@ function M.highlights(mode)
   mode = mode or M.mode()
   if mode == "dark" then
     return {
+      UserPath = { fg = "#7fbbb3", underline = true },
       GitSignsCurrentLineBlame = { fg = "#7fbbb3", bg = "#343f44", italic = true },
     }
   end
 
   return {
+    UserPath = { fg = "#0969da", underline = true },
     GitSignsCurrentLineBlame = { fg = "#0969da", bg = "#ddf4ff", italic = true },
   }
 end
