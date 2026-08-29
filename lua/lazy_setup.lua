@@ -16,6 +16,9 @@ require("lazy").setup({
 } --[[@as LazySpec]], {
   -- Configure any other `lazy.nvim` configuration options here
   install = { colorscheme = { "github_light_high_contrast", "everforest", "astrotheme", "habamax" } },
+  -- Native LuaRocks builds (notably cppjieba/xmake) can exceed Lazy's
+  -- two-minute default on a clean install.
+  git = { timeout = 600 },
   -- "lua-rocks" intentionally contains "lua": xmake's lua.module rule uses
   -- that substring to detect LuaRocks-provided headers and avoid linking Lua 5.4.
   rocks = { enabled = true, root = vim.fn.stdpath "data" .. "/lua-rocks" },
