@@ -172,6 +172,10 @@ return {
       opts.mappings = opts.mappings or {}
       opts.mappings.n = opts.mappings.n or {}
       opts.mappings.n["<Leader>m"] = { desc = "Markdown" }
+      opts.mappings.n["<Leader>ms"] = {
+        function() require("user.scratch").new_markdown() end,
+        desc = "New persistent Markdown scratch",
+      }
       return opts
     end,
   },

@@ -143,6 +143,16 @@ return {
 
       local function command_palette() require("snacks").picker.commands() end
 
+      local function switch_to_alternate_buffer()
+        local alternate = vim.fn.bufnr "#"
+        if alternate < 0 or vim.fn.bufexists(alternate) == 0 then
+          vim.notify("No alternate buffer", vim.log.levels.WARN)
+          return
+        end
+
+        vim.cmd.buffer(alternate)
+      end
+
       local function search_project_words()
         require("snacks").picker.grep {
           cwd = git_root(),
@@ -169,9 +179,9 @@ return {
       opts.mappings.n["<Leader>f"] = { desc = "Files" }
       opts.mappings.n["<Leader>s"] = { desc = "Search" }
 
-      opts.mappings.n["<Leader><Space>"] = {
-        find_project_files,
-        desc = "Find files",
+      opts.mappings.n["<Leader><Leader>"] = {
+        switch_to_alternate_buffer,
+        desc = "Switch to alternate buffer",
       }
       opts.mappings.n["<C-p>"] = {
         find_project_files,
