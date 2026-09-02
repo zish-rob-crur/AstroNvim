@@ -21,6 +21,7 @@ local status_icons = {
   completion = "󰘦",
   completion_off = "󰅖",
   ai = "󰚩",
+  ocr = "󱄽",
 }
 
 local minuet_spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
@@ -100,6 +101,20 @@ end
 local function completion_status(bufnr)
   local parts = {}
   local has_warning = false
+  local ocr_text
+
+  local context_source = vim.g.zish_external_context_source or vim.env.NVIM_EXTERNAL_CONTEXT_SOURCE
+  if context_source == "window-ocr" then
+    local context_state = vim.g.zish_external_context_state or "pending"
+    if context_state == "loaded" then
+      ocr_text = status_icons.ocr
+    elseif context_state == "empty" or context_state == "failed" then
+      ocr_text = status_icons.ocr .. "!"
+      has_warning = true
+    else
+      ocr_text = status_icons.ocr .. "…"
+    end
+  end
 
   local blink_text, blink_warning = blink_completion_status(bufnr)
   if blink_text then
@@ -113,6 +128,8 @@ local function completion_status(bufnr)
   elseif minuet_auto_trigger_enabled(bufnr) then
     table.insert(parts, status_icons.ai)
   end
+
+  if ocr_text then table.insert(parts, ocr_text) end
 
   return #parts > 0 and table.concat(parts, " ") or nil, has_warning
 end

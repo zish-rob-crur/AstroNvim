@@ -49,15 +49,32 @@ return {
         },
       }
 
+      local commands = require "typewriter.commands"
       local group = vim.api.nvim_create_augroup("UserMarkdownTypewriter", { clear = true })
+      local function sync_typewriter()
+        if vim.bo.buftype == "" and vim.bo.filetype == "markdown" then
+          commands.enable_typewriter_mode()
+        else
+          commands.disable_typewriter_mode()
+        end
+      end
+
+      -- Typewriter keeps global CursorMoved/WinScrolled callbacks while it is
+      -- active. Tie that global state to the current buffer so a delayed scroll
+      -- callback cannot follow a Markdown buffer into a terminal.
+      vim.api.nvim_create_autocmd({ "BufEnter", "TermEnter" }, {
+        group = group,
+        callback = sync_typewriter,
+        desc = "Keep typewriter mode scoped to Markdown buffers",
+      })
       vim.api.nvim_create_autocmd("FileType", {
         group = group,
         pattern = "markdown",
-        callback = function() vim.cmd "TWEnable" end,
+        callback = sync_typewriter,
         desc = "Enable typewriter mode for Markdown",
       })
 
-      if vim.bo.filetype == "markdown" then vim.cmd "TWEnable" end
+      sync_typewriter()
     end,
   },
   {

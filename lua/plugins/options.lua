@@ -10,7 +10,8 @@ return {
       opts.options.opt.autoread = true
       opts.options.g.loaded_perl_provider = 0
       opts.options.g.loaded_ruby_provider = 0
-      opts.options.g.clipboard = {
+
+      local osc52_clipboard = {
         name = "OSC 52",
         copy = {
           ["+"] = require("vim.ui.clipboard.osc52").copy "+",
@@ -23,6 +24,27 @@ return {
       }
 
       opts.autocmds = opts.autocmds or {}
+      opts.autocmds.configure_clipboard_provider = {
+        {
+          event = "UIEnter",
+          desc = "Use OSC 52 in terminals and native clipboard providers in GUI clients",
+          callback = function()
+            local has_terminal_ui = false
+            for _, ui in ipairs(vim.api.nvim_list_uis()) do
+              if ui.stdin_tty or ui.stdout_tty then
+                has_terminal_ui = true
+                break
+              end
+            end
+
+            if has_terminal_ui then
+              vim.g.clipboard = osc52_clipboard
+              package.loaded["vim.provider.clipboard"] = nil
+              vim.g.loaded_clipboard_provider = nil
+            end
+          end,
+        },
+      }
       opts.autocmds.auto_save_changed_files = {
         {
           event = { "BufLeave", "FocusLost", "InsertLeave", "CursorHold", "CursorHoldI" },

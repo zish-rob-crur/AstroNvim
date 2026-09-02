@@ -3,12 +3,35 @@ local M = {}
 local loaded = false
 local cached_context
 
-local function agent_context_enabled()
+local function context_enabled()
   local agent = vim.env.DOTAGENT_AGENT
   local editor_prompt = vim.env.DOTAGENT_EDITOR_PROMPT
   return editor_prompt
     and editor_prompt ~= ""
     and (agent == "codex" or agent == "claude" or agent == "claude-code")
+end
+
+local function context_source()
+  local source = vim.g.zish_external_context_source
+  if source and source ~= "" then return source end
+
+  source = vim.env.NVIM_EXTERNAL_CONTEXT_SOURCE
+  if source and source ~= "" then
+    vim.g.zish_external_context_source = source
+    vim.g.zish_external_context_state = vim.g.zish_external_context_state or "pending"
+    return source
+  end
+end
+
+local function set_context_state(state)
+  context_source()
+  if vim.g.zish_external_context_state == state then return end
+  vim.g.zish_external_context_state = state
+
+  vim.schedule(function()
+    pcall(vim.api.nvim_exec_autocmds, "User", { pattern = "ZishExternalContextChanged" })
+    pcall(vim.cmd.redrawstatus)
+  end)
 end
 
 local function number_from_env(name, default, minimum)
@@ -26,7 +49,7 @@ local function strip_control_chars(line)
 end
 
 local function truncate_line(line)
-  local max_chars = number_from_env("NVIM_PRE_SHELL_CONTEXT_MAX_LINE_CHARS", 300, 40)
+  local max_chars = number_from_env("NVIM_EXTERNAL_CONTEXT_MAX_LINE_CHARS", 300, 40)
   if vim.fn.strchars(line) <= max_chars then return line end
   return vim.fn.strcharpart(line, 0, max_chars) .. " ..."
 end
@@ -60,41 +83,43 @@ local function trim_empty_edges(lines)
 end
 
 local function tail_lines(lines)
-  local max_lines = number_from_env("NVIM_PRE_SHELL_CONTEXT_MAX_LINES", 120, 1)
+  local max_lines = number_from_env("NVIM_EXTERNAL_CONTEXT_MAX_LINES", 120, 1)
   if #lines <= max_lines then return lines end
 
   local trimmed = {}
   for index = #lines - max_lines + 1, #lines do
     trimmed[#trimmed + 1] = lines[index]
   end
-  table.insert(trimmed, 1, "[earlier shell context omitted]")
+  table.insert(trimmed, 1, "[earlier external context omitted]")
   return trimmed
 end
 
 local function tail_chars(text)
-  local max_chars = number_from_env("NVIM_PRE_SHELL_CONTEXT_MAX_CHARS", 2500, 200)
+  local max_chars = number_from_env("NVIM_EXTERNAL_CONTEXT_MAX_CHARS", 2500, 200)
   local length = vim.fn.strchars(text)
   if length <= max_chars then return text end
-  return "[earlier shell context omitted]\n" .. vim.fn.strcharpart(text, length - max_chars)
+  return "[earlier external context omitted]\n" .. vim.fn.strcharpart(text, length - max_chars)
 end
 
 local function load_context()
   if loaded then return cached_context end
-  loaded = true
 
-  if not agent_context_enabled() then return nil end
+  context_source()
+  if not context_enabled() then return nil end
 
-  local path = vim.env.NVIM_PRE_SHELL_CONTEXT
+  local path = vim.env.NVIM_EXTERNAL_CONTEXT_FILE
   if not path or path == "" then return nil end
-  if vim.fn.filereadable(path) ~= 1 then
-    M.cleanup()
-    return nil
-  end
+  if vim.fn.filereadable(path) ~= 1 then return nil end
 
   local ok, lines = pcall(vim.fn.readfile, path)
-  M.cleanup()
-
   if not ok or not lines or #lines == 0 then return nil end
+
+  if lines[1] == "__NVIM_EXTERNAL_CONTEXT_FAILED__" then
+    loaded = true
+    M.cleanup()
+    set_context_state "failed"
+    return nil
+  end
 
   lines = trim_empty_edges(lines)
   lines = tail_lines(lines)
@@ -103,9 +128,16 @@ local function load_context()
   end, lines)
 
   local text = vim.trim(tail_chars(table.concat(lines, "\n")))
-  if text == "" then return nil end
+  loaded = true
+  M.cleanup()
+
+  if text == "" then
+    set_context_state "empty"
+    return nil
+  end
 
   cached_context = text
+  set_context_state "loaded"
   return cached_context
 end
 
@@ -123,7 +155,7 @@ function M.comment_block()
   if not context then return "" end
 
   local lines = vim.split(context, "\n", { plain = true })
-  local commented = { comment_line "Shell context before Neovim:" }
+  local commented = { comment_line "External context for Neovim:" }
   for _, line in ipairs(lines) do
     commented[#commented + 1] = comment_line(line)
   end
@@ -150,13 +182,21 @@ end
 
 function M.fim_suffix(_, context_after_cursor, _) return context_after_cursor end
 
+function M.status()
+  return {
+    source = context_source(),
+    state = vim.g.zish_external_context_state,
+  }
+end
+
 function M.cleanup()
-  local path = vim.env.NVIM_PRE_SHELL_CONTEXT
-  if vim.env.NVIM_PRE_SHELL_CONTEXT_DELETE == "1" and path and path ~= "" then
+  local path = vim.env.NVIM_EXTERNAL_CONTEXT_FILE
+  if vim.env.NVIM_EXTERNAL_CONTEXT_DELETE == "1" and path and path ~= "" then
     pcall(vim.fn.delete, path)
   end
-  vim.env.NVIM_PRE_SHELL_CONTEXT = nil
-  vim.env.NVIM_PRE_SHELL_CONTEXT_DELETE = nil
+  vim.env.NVIM_EXTERNAL_CONTEXT_FILE = nil
+  vim.env.NVIM_EXTERNAL_CONTEXT_DELETE = nil
+  vim.env.NVIM_EXTERNAL_CONTEXT_SOURCE = nil
 end
 
 return M
