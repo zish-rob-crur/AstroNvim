@@ -10,20 +10,8 @@ return {
       inlay_hints = false,
       semantic_tokens = true,
     },
-    formatting = {
-      format_on_save = {
-        enabled = true,
-      },
-      disabled = {
-        "lua_ls",
-        "basedpyright",
-        "ruff",
-        "vtsls",
-        "eslint",
-        "marksman",
-      },
-      timeout_ms = 1000,
-    },
+    -- Formatting is owned by conform.nvim (see productivity.lua).
+    formatting = { format_on_save = { enabled = false } },
     servers = {
       "basedpyright",
       "ruff",

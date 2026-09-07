@@ -40,13 +40,11 @@ return {
         -- Python
         "basedpyright",
         "ruff",
-        "black",
 
         -- TypeScript / JavaScript
         "vtsls",
         "eslint",
         "prettierd",
-        "prettier",
 
         -- Markdown
         "marksman",

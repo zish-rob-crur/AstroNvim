@@ -80,6 +80,7 @@ return {
   {
     "0xble/dotagent.nvim",
     lazy = false,
+    cond = function() return (vim.env.DOTAGENT_EDITOR_PROMPT or "") ~= "" end,
     opts = dotagent_opts,
   },
   {

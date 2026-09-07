@@ -29,12 +29,15 @@ git clone https://github.com/<your_user>/<your_repository> ~/.config/nvim
 
 #### Install native dependencies
 
-Chinese word motions and `<Leader>jw` use `neo451/jieba.nvim` with its native
+Chinese word motions and pinyin jumps with `s` use `neo451/jieba.nvim` with its native
 `cppjieba` Lua rock. On macOS, install XMake before the first Neovim launch:
 
 ```shell
 brew install xmake
 ```
+
+The pinyin table used by `s` lives in `lua/user/pinyin_initials.lua`. Regenerate
+it with `uvx --from pypinyin python scripts/gen_pinyin_initials.py`.
 
 A separate system-wide LuaRocks installation is not required. `lazy.nvim`
 bootstraps Hererocks/LuaRocks and installs the native module under

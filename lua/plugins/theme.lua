@@ -1,21 +1,18 @@
+local theme = require "user.theme"
+local mode = theme.mode()
+
 return {
-  {
-    "kepano/flexoki-neovim",
-    name = "flexoki",
-    lazy = false,
-    priority = 1000,
-  },
   {
     "sainnhe/everforest",
     name = "everforest",
-    lazy = false,
+    lazy = mode ~= "dark",
     priority = 1000,
-    config = function() require("user.theme").configure() end,
+    config = function() theme.configure() end,
   },
   {
     "projekt0n/github-nvim-theme",
     name = "github-theme",
-    lazy = false,
+    lazy = mode ~= "light",
     priority = 1000,
     opts = {
       options = {
@@ -28,8 +25,6 @@ return {
   {
     "AstroNvim/astroui",
     opts = function(_, opts)
-      local theme = require "user.theme"
-      local mode = theme.mode()
       theme.configure(mode)
       opts.colorscheme = theme.colorscheme(mode)
 

@@ -12,11 +12,9 @@ end
 return {
   {
     "mrjones2014/smart-splits.nvim",
-    lazy = false,
     opts = {
       multiplexer_integration = vim.env.TMUX and "tmux" or nil,
     },
-    config = function(_, opts) require("smart-splits").setup(opts) end,
   },
   {
     "folke/flash.nvim",
@@ -29,7 +27,12 @@ return {
       },
     },
     keys = {
-      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash jump" },
+      {
+        "s",
+        mode = { "n", "x", "o" },
+        function() require("user.flash_pinyin").jump() end,
+        desc = "Flash jump (pinyin initials for Chinese)",
+      },
       { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter jump" },
       { "r", mode = "o", function() require("flash").remote() end, desc = "Flash remote jump" },
       { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Flash Treesitter search" },
@@ -71,19 +74,46 @@ return {
   },
   {
     "ThePrimeagen/harpoon",
+    branch = "harpoon2",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {},
-    config = function(_, opts) require("harpoon").setup(opts) end,
+    config = function(_, opts) require("harpoon"):setup(opts) end,
     keys = {
-      { "<Leader>aa", function() require("harpoon.mark").add_file() end, desc = "Harpoon add file" },
-      { "<Leader>am", function() require("harpoon.ui").toggle_quick_menu() end, desc = "Harpoon menu" },
-      { "<Leader>an", function() require("harpoon.ui").nav_next() end, desc = "Harpoon next" },
-      { "<Leader>ap", function() require("harpoon.ui").nav_prev() end, desc = "Harpoon previous" },
-      { "<Leader>1", function() require("harpoon.ui").nav_file(1) end, desc = "Harpoon file 1" },
-      { "<Leader>2", function() require("harpoon.ui").nav_file(2) end, desc = "Harpoon file 2" },
-      { "<Leader>3", function() require("harpoon.ui").nav_file(3) end, desc = "Harpoon file 3" },
-      { "<Leader>4", function() require("harpoon.ui").nav_file(4) end, desc = "Harpoon file 4" },
+      { "<Leader>aa", function() require("harpoon"):list():add() end, desc = "Harpoon add file" },
+      {
+        "<Leader>am",
+        function()
+          local harpoon = require "harpoon"
+          harpoon.ui:toggle_quick_menu(harpoon:list())
+        end,
+        desc = "Harpoon menu",
+      },
+      { "<Leader>an", function() require("harpoon"):list():next() end, desc = "Harpoon next" },
+      { "<Leader>ap", function() require("harpoon"):list():prev() end, desc = "Harpoon previous" },
+      { "<Leader>1", function() require("harpoon"):list():select(1) end, desc = "Harpoon file 1" },
+      { "<Leader>2", function() require("harpoon"):list():select(2) end, desc = "Harpoon file 2" },
+      { "<Leader>3", function() require("harpoon"):list():select(3) end, desc = "Harpoon file 3" },
+      { "<Leader>4", function() require("harpoon"):list():select(4) end, desc = "Harpoon file 4" },
     },
+  },
+  {
+    "echasnovski/mini.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("mini.ai").setup { n_lines = 500 }
+      -- Flash owns `s`, so surround lives under `gs`.
+      require("mini.surround").setup {
+        mappings = {
+          add = "gsa",
+          delete = "gsd",
+          find = "gsf",
+          find_left = "gsF",
+          highlight = "gsh",
+          replace = "gsr",
+          update_n_lines = "gsn",
+        },
+      }
+    end,
   },
   {
     "AstroNvim/astrocore",

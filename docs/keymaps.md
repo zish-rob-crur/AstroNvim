@@ -12,13 +12,8 @@
 
 ### Flash / Flash 跳转
 
-- `s`: Flash jump. Type 1-2 characters, then pick a label. / Flash 跳转。输入 1 到 2 个字符，然后选择标签。
+- `s`: Flash jump. Type 1-2 characters, then pick a label. Chinese words match by pinyin initials from their first character onward, so `s` `k` `j` labels "快捷键"; labels never use a letter that could continue a pinyin match. / Flash 跳转。输入 1 到 2 个字符，然后选择标签。中文词按拼音首字母匹配，例如 `s` `k` `j` 会标出"快捷键"；标签不会占用可能继续拼音匹配的字母。
 - `S`: Flash Treesitter jump by syntax node. / 按语法节点执行 Flash Treesitter 跳转。
-- `<Leader>jw`: Label all visible Chinese and ASCII word starts with Flash.
-  Labels automatically use multiple stages when the screen has many targets,
-  but each stage shows only the next key; UI sidebars are ignored. /
-  使用 Flash 标记屏幕内所有可见的中文及 ASCII 词首；目标较多时自动分层，
-  每层只显示下一按键，并忽略 UI 侧边栏。
 - `w` / `b` / `e` / `ge`: Move globally by Jieba words; `iw` / `aw`
   select a Jieba word in Visual mode. /
   在所有缓冲区中按 Jieba 分词移动；可视模式下用 `iw` / `aw` 选择一个 Jieba 词。
@@ -34,6 +29,22 @@ Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like beh
 - `<Leader>1`/`2`/`3`/`4`: Jump to marked file 1-4. / 跳转到第 1 到第 4 个标记文件。
 - `<Leader>an` / `<Leader>ap`: Next or previous mark. / 跳到下一个或上一个标记。
 
+## Editing / 编辑
+
+### Surround (mini.surround) / 包围符号
+
+- `gsa{motion}{char}`: Add surrounding, for example `gsaiw"` wraps the word in quotes. / 添加包围符号，例如 `gsaiw"` 给单词加引号。
+- `gsd{char}`: Delete surrounding, for example `gsd"`. / 删除包围符号，例如 `gsd"`。
+- `gsr{old}{new}`: Replace surrounding, for example `gsr'"`. / 替换包围符号，例如 `gsr'"`。
+- `gsf` / `gsF`: Move to the next or previous surrounding. / 移动到下一个或上一个包围符号。
+
+### Text Objects (mini.ai) / 文本对象
+
+- `af` / `if`: Function call. `aa` / `ia`: Argument. `a?` / `i?`: Prompt for delimiters. / 函数调用；参数；交互式输入分隔符。
+- `aq` / `iq`: Any quote. `ab` / `ib`: Any bracket. `at` / `it`: Tag. / 任意引号；任意括号；标签。
+- `an{obj}` / `al{obj}`: Next or last occurrence, for example `cinq` changes the next quoted text. / 下一个或上一个对象，例如 `cinq` 修改下一段引号内容。
+- Visual `iw` / `aw` remain Jieba words. / 可视模式下 `iw` / `aw` 仍是 Jieba 分词。
+
 ## Files And Search / 文件与搜索
 
 - `<C-p>` / `<Leader><Space>`: Find project files, prioritizing the most recently modified files. / 查找项目文件，最近修改的文件优先。
@@ -44,7 +55,7 @@ Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like beh
 - `<Leader>sb`: Search text in the current buffer. / 在当前缓冲区中搜索文本。
 - `<Leader>sr`: Search and replace across the project with GrugFar. / 使用 GrugFar 执行项目级查找替换。
 - `<Leader>sR`: Search and replace the word under the cursor with GrugFar. / 使用 GrugFar 查找并替换光标下的词。
-- `<Leader>ff`: Find project files, prioritizing the most recently modified files. / 查找项目文件，最近修改的文件优先。
+- `<Leader>ff` / `<C-p>`: Find project files; open buffers and recently used files rank first (frecency). / 查找项目文件，已打开和最近使用的文件优先（frecency）。
 - `<Leader>fF`: Find all project files, including hidden and ignored files. / 查找所有项目文件，包括隐藏文件和被忽略文件。
 - `<Leader>fo`: Reveal the current file in Finder, or open the current working directory for unnamed buffers. / 在 Finder 中显示当前文件；如果是未命名缓冲区，则打开当前工作目录。
 - `<Leader>fO`: Find old files in the current working directory. / 查找当前工作目录中的最近文件。
@@ -132,9 +143,7 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 
 ## AI Completion / AI 补全
 
-- `<Leader>ua`: Toggle Minuet inline completion. / 开关 Minuet 行内 AI 补全。
-- `<Leader>uA`: Select the Minuet provider, Qwen, Bailian, or DeepSeek, and persist it to `~/.env`. / 选择 Minuet provider（Qwen、百炼或 DeepSeek），并写回 `~/.env`。
-- `:ZishMinuetProvider qwen` / `:ZishMinuetProvider bailian` / `:ZishMinuetProvider deepseek`: Switch provider directly. / 直接切换 provider。
+- `<Leader>ua`: Toggle Minuet inline completion (DeepSeek). / 开关 Minuet 行内 AI 补全（DeepSeek）。
 
 ## Markdown / Markdown 编辑
 

@@ -4,15 +4,22 @@ M.dark_colorscheme = "everforest"
 M.light_colorscheme = "github_light_high_contrast"
 M.dark_background = "medium"
 
-function M.mode()
-  if vim.env.NVIM_THEME_MODE == "dark" or vim.env.NVIM_THEME_MODE == "light" then
-    return vim.env.NVIM_THEME_MODE
-  end
+local cached_mode
+
+local function detect_mode()
+  if vim.env.NVIM_THEME_MODE == "dark" or vim.env.NVIM_THEME_MODE == "light" then return vim.env.NVIM_THEME_MODE end
 
   if vim.fn.has "mac" == 0 then return vim.o.background == "dark" and "dark" or "light" end
 
   local output = vim.fn.system { "defaults", "read", "-g", "AppleInterfaceStyle" }
   return vim.v.shell_error == 0 and output:match "Dark" and "dark" or "light"
+end
+
+-- `defaults read` costs several milliseconds per call, so cache the result and
+-- refresh it only when the window regains focus (see `M.apply`).
+function M.mode()
+  if not cached_mode then cached_mode = detect_mode() end
+  return cached_mode
 end
 
 function M.colorscheme(mode)
@@ -51,7 +58,8 @@ function M.highlights(mode)
 end
 
 function M.apply()
-  local mode = M.mode()
+  cached_mode = detect_mode()
+  local mode = cached_mode
   local colorscheme = M.colorscheme(mode)
   local background = M.background(mode)
 
