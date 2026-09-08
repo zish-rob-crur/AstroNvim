@@ -99,6 +99,21 @@ return {
       opts.mappings = opts.mappings or {}
       opts.mappings.n = opts.mappings.n or {}
 
+      -- macOS Cmd+C / Cmd+V in GUI clients (Neovide). Terminals never deliver
+      -- the Cmd key, so these are bound unconditionally; that also covers a
+      -- headless server that Neovide attaches to later (vim.g.neovide is nil
+      -- there at config time).
+      for _, mode in ipairs { "n", "v", "i", "c", "t" } do
+        opts.mappings[mode] = opts.mappings[mode] or {}
+      end
+      opts.mappings.n["<D-c>"] = { '"+y', desc = "Copy to system clipboard" }
+      opts.mappings.v["<D-c>"] = { '"+y', desc = "Copy to system clipboard" }
+      opts.mappings.n["<D-v>"] = { '"+p', desc = "Paste from system clipboard" }
+      opts.mappings.v["<D-v>"] = { '"+p', desc = "Paste from system clipboard" }
+      opts.mappings.i["<D-v>"] = { "<C-r>+", desc = "Paste from system clipboard" }
+      opts.mappings.c["<D-v>"] = { "<C-r>+", desc = "Paste from system clipboard" }
+      opts.mappings.t["<D-v>"] = { '<C-\\><C-n>"+pa', desc = "Paste from system clipboard" }
+
       local function copy_current_file_path(relative)
         local path = vim.api.nvim_buf_get_name(0)
         if path == "" then
