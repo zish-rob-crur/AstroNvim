@@ -147,6 +147,9 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 
 ## Markdown / Markdown 编辑
 
+- `:MarkdownCopyRich`: Copy the whole buffer as rich text (macOS + Pandoc). / 将当前整篇 Markdown（含未保存修改）复制为富文本。
+- `:'<,'>MarkdownCopyRich` or `:3,8MarkdownCopyRich`: Copy selected lines or a line range. / 复制可视选区所在行或指定行范围。支持富文本的应用可用 Cmd+V 粘贴；纯文本应用得到去除 Markdown 标记的文本。
+
 > These mappings are registered only in Markdown buffers. / 这些映射只会在 Markdown 缓冲区中注册。
 
 - `<Leader>mp`: Open the `render-markdown` preview. / 打开 `render-markdown` 预览。
@@ -167,3 +170,20 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `yp`: Copy the selected node's relative path. / 复制当前选中文件或目录的相对路径。
 - `yP`: Copy the selected node's absolute path. / 复制当前选中文件或目录的绝对路径。
 - `q`: Close the Neo-tree window. / 关闭 Neo-tree 窗口。
+
+## Multiple cursors / 多光标
+
+In Normal or Visual mode / 普通或可视模式：
+
+- `<Leader>vn`: Add next matching cursor. / 选择当前词，继续按添加下一个匹配。
+- `<Leader>vs`: Skip next match. / 跳过下一个匹配。
+- `<Leader>vj` / `<Leader>vk`: Add cursor below / above. / 向下 / 向上增加光标。
+- `<Esc>` in Normal mode: Clear multiple cursors. / 普通模式下清除多光标；插入模式先按一次退出输入，再按一次清除。
+
+Example: `<Leader>vj`, then `I` to insert at the start of both lines. / 示例：按空格 v j，再按 `I`，即可在两行开头一起输入。
+
+## AI terminals / AI 终端
+
+- `<Leader>tc`: Open Codex with current file context. / 打开 Codex 并附带当前文件上下文。
+- `<Leader>tC`: Open Claude with current file context. / 打开或聚焦 Claude 侧栏（C 为 Shift+c），保存当前文件并预填文件路径和行号；按项目复用会话，不自动发送。
+- In Claude, `Alt+h/j/k/l` moves to another split; `F7` hides the terminal. / Claude 中按 Option+h/j/k/l 切换窗口，F7 隐藏终端。

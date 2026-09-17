@@ -1,4 +1,7 @@
 local function set_markdown_nav_keymaps(bufnr)
+  vim.api.nvim_buf_create_user_command(bufnr, "MarkdownCopyRich", function(args)
+    require("user.markdown_clipboard").copy(args.line1, args.line2)
+  end, { range = "%", desc = "Copy Markdown as rich text to the macOS clipboard" })
   local map = function(lhs, rhs, desc) vim.keymap.set("n", lhs, rhs, { buffer = bufnr, silent = true, desc = desc }) end
 
   map("<Leader>mp", function() require("render-markdown").preview() end, "Markdown preview")
@@ -86,6 +89,13 @@ return {
     ---@module "render-markdown"
     ---@type render.md.UserConfig
     opts = {
+      -- In insert mode, keep other lines rendered instead of exposing every URL.
+      render_modes = { "n", "c", "t", "i" },
+      -- Keep the cursor line readable while navigating; editing reveals source.
+      anti_conceal = { disabled_modes = { "n" } },
+      win_options = {
+        concealcursor = { rendered = "n" },
+      },
       code = {
         -- Add a little padding around inline code like `'<Leader>ff'`.
         inline_pad = 1,

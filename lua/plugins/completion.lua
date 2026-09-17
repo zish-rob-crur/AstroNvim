@@ -72,6 +72,13 @@ local PATH_PATTERN =
   [[\v(\@[[:alnum:]_.~/-]+|[[:alnum:]_.~-]+/[[:alnum:]_.~/-]+|'\zs[^']+/[^']+\ze'|"\zs[^"]+/[^"]+\ze")]]
 
 local function highlight_paths()
+  if vim.api.nvim_win_get_config(0).relative ~= "" or vim.bo.buftype ~= "" then
+    if vim.w.user_path_match then
+      pcall(vim.fn.matchdelete, vim.w.user_path_match)
+      vim.w.user_path_match = nil
+    end
+    return
+  end
   if not vim.w.user_path_match then vim.w.user_path_match = vim.fn.matchadd("UserPath", PATH_PATTERN, 200) end
 end
 
@@ -107,6 +114,8 @@ return {
         menu = {
           auto_show = true,
           auto_show_delay_ms = 0,
+          border = "single",
+          max_height = 8,
         },
         keyword = {
           range = "prefix",

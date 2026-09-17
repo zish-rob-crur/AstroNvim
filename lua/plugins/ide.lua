@@ -16,28 +16,31 @@ return {
     opts = {},
   },
   {
-    "sindrets/diffview.nvim",
-    cmd = {
-      "DiffviewClose",
-      "DiffviewFileHistory",
-      "DiffviewFocusFiles",
-      "DiffviewOpen",
-      "DiffviewRefresh",
-      "DiffviewToggleFiles",
-    },
+    "esmuellert/codediff.nvim",
+    cmd = "CodeDiff",
     keys = {
-      { "<Leader>gdd", "<cmd>DiffviewOpen<CR>", desc = "Open Git diff view" },
-      { "<Leader>gdc", "<cmd>DiffviewClose<CR>", desc = "Close Git diff view" },
-      { "<Leader>gdf", "<cmd>DiffviewFocusFiles<CR>", desc = "Focus diff file panel" },
-      { "<Leader>gdt", "<cmd>DiffviewToggleFiles<CR>", desc = "Toggle diff file panel" },
-      { "<Leader>gdr", "<cmd>DiffviewRefresh<CR>", desc = "Refresh Git diff view" },
-      { "<Leader>gdh", "<cmd>DiffviewFileHistory<CR>", desc = "Git file history" },
-      { "<Leader>gdH", "<cmd>DiffviewFileHistory %<CR>", desc = "Current file history" },
+      { "<Leader>gdd", "<cmd>CodeDiff<CR>", desc = "Open Git diff view" },
+      { "<Leader>gdh", "<cmd>CodeDiff history<CR>", desc = "Git file history" },
+      { "<Leader>gdH", "<cmd>CodeDiff history %<CR>", desc = "Current file history" },
     },
     opts = {
-      enhanced_diff_hl = true,
-      file_panel = {
-        listing_style = "tree",
+      diff = {
+        layout = "inline",
+        filler_text = "",
+      },
+      explorer = {
+        view_mode = "tree",
+        width = 30,
+      },
+      -- Keep review actions local to CodeDiff buffers.
+      keymaps = {
+        view = {
+          quit = { "q", "<Leader>gdc" },
+          focus_explorer = "<Leader>gdf",
+          toggle_explorer = "<Leader>gdt",
+        },
+        explorer = { refresh = { "R", "<Leader>gdr" } },
+        history = { refresh = { "R", "<Leader>gdr" } },
       },
     },
   },

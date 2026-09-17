@@ -10,6 +10,9 @@ return {
       opts.options.opt.autoread = true
       opts.options.g.loaded_perl_provider = 0
       opts.options.g.loaded_ruby_provider = 0
+      -- Let Neovide deliver Option shortcuts as <M-...>, including when
+      -- attaching to a headless server after its configuration has loaded.
+      opts.options.g.neovide_input_macos_option_key_is_meta = "both"
 
       local osc52_clipboard = {
         name = "OSC 52",
@@ -114,7 +117,7 @@ return {
       opts.mappings.c["<D-v>"] = { "<C-r>+", desc = "Paste from system clipboard" }
       opts.mappings.t["<D-v>"] = { '<C-\\><C-n>"+pa', desc = "Paste from system clipboard" }
 
-      local function copy_current_file_path(relative)
+      local function copy_current_file_path(relative, with_line)
         local path = vim.api.nvim_buf_get_name(0)
         if path == "" then
           vim.notify("Current buffer has no file path", vim.log.levels.WARN)
@@ -122,6 +125,7 @@ return {
         end
 
         path = relative and vim.fn.fnamemodify(path, ":.") or vim.fn.fnamemodify(path, ":p")
+        if with_line then path = "current edit file: " .. path .. ":" .. vim.api.nvim_win_get_cursor(0)[1] end
         vim.fn.setreg("+", path)
         vim.fn.setreg('"', path)
         vim.notify("Copied: " .. path)
@@ -276,6 +280,10 @@ return {
       opts.mappings.n["<Leader>yP"] = {
         function() copy_current_file_path(false) end,
         desc = "Copy absolute file path",
+      }
+      opts.mappings.n["<Leader>yl"] = {
+        function() copy_current_file_path(false, true) end,
+        desc = "Copy absolute file path with line number",
       }
     end,
   },

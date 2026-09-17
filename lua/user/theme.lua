@@ -47,12 +47,22 @@ function M.highlights(mode)
   if mode == "dark" then
     return {
       UserPath = { fg = "#7fbbb3", underline = true },
+      BlinkCmpMenu = { fg = "#d3c6aa", bg = "#272e33" },
+      BlinkCmpMenuBorder = { fg = "#4f585e", bg = "#272e33" },
+      BlinkCmpMenuSelection = { fg = "#eee8d5", bg = "#45534b", bold = true },
+      BlinkCmpLabel = { fg = "#d3c6aa" },
+      BlinkCmpLabelMatch = { fg = "#a7c080", bold = true },
       GitSignsCurrentLineBlame = { fg = "#7fbbb3", bg = "#343f44", italic = true },
     }
   end
 
   return {
     UserPath = { fg = "#0969da", underline = true },
+    BlinkCmpMenu = { fg = "#24292f", bg = "#ffffff" },
+    BlinkCmpMenuBorder = { fg = "#d0d7de", bg = "#ffffff" },
+    BlinkCmpMenuSelection = { fg = "#24292f", bg = "#ddf4ff", bold = true },
+    BlinkCmpLabel = { fg = "#24292f" },
+    BlinkCmpLabelMatch = { fg = "#0969da", bold = true },
     GitSignsCurrentLineBlame = { fg = "#0969da", bg = "#ddf4ff", italic = true },
   }
 end
