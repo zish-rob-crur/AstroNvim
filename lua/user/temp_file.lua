@@ -19,14 +19,15 @@ function M.is_path(path)
   local basename = vim.fs.basename(path) or ""
   if basename:match "^%.tmp" or basename:match "%.tmp$" then return true end
 
-  local temp_dirs = {
-    vim.env.TMPDIR,
-    vim.env.TEMP,
-    vim.env.TMP,
-    "/tmp",
-    "/var/tmp",
-    "/private/tmp",
-  }
+  -- An unset variable would leave a hole that ipairs() stops at, so the list is
+  -- built by appending. Codex composes prompts in an editor opened on a file
+  -- under its editor directory; such a window is an input box, so it gets no
+  -- file tree and no outline.
+  local temp_dirs = { "/tmp", "/var/tmp", "/private/tmp" }
+  table.insert(temp_dirs, vim.fs.joinpath(vim.env.CODEX_HOME or vim.fn.expand "~/.codex", "editor"))
+  for _, name in ipairs { "TMPDIR", "TEMP", "TMP" } do
+    if vim.env[name] then table.insert(temp_dirs, vim.env[name]) end
+  end
 
   for _, dir in ipairs(temp_dirs) do
     if has_prefix(path, dir) then return true end
