@@ -99,8 +99,19 @@ return {
   {
     "echasnovski/mini.nvim",
     event = "VeryLazy",
+    keys = {
+      {
+        "<Leader>E",
+        function()
+          local path = vim.api.nvim_buf_get_name(0)
+          require("mini.files").open(vim.uv.fs_stat(path) and path or nil)
+        end,
+        desc = "Browse files (mini.files)",
+      },
+    },
     config = function()
       require("mini.ai").setup { n_lines = 500 }
+      require("mini.files").setup { windows = { preview = true, width_preview = 60 } }
       -- Flash owns `s`, so surround lives under `gs`.
       require("mini.surround").setup {
         mappings = {

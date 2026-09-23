@@ -17,11 +17,6 @@ local function copy_node_path(relative)
   end
 end
 
-local function with_neotree_session(method)
-  local ok, neotree_session = pcall(require, "user.neotree_session")
-  if ok and type(neotree_session[method]) == "function" then pcall(neotree_session[method]) end
-end
-
 return {
   {
     "nvim-neo-tree/neo-tree.nvim",
@@ -55,10 +50,6 @@ return {
         pcall(vim.cmd, command)
       end
 
-      local function restore_right_tree_state()
-        vim.defer_fn(function() with_neotree_session "restore" end, 150)
-      end
-
       local function open_dashboard()
         local ok_lazy, lazy = pcall(require, "lazy")
         if ok_lazy then pcall(lazy.load, { plugins = { "snacks.nvim" } }) end
@@ -83,10 +74,7 @@ return {
             local directory_bufnr = starts_with_directory and vim.api.nvim_get_current_buf() or nil
             local should_open_dashboard = file == "" or starts_with_directory
 
-            if #trees == 1 and trees[1].position == "right" and #all_windows > 1 then
-              restore_right_tree_state()
-              return
-            end
+            if #trees == 1 and trees[1].position == "right" and #all_windows > 1 then return end
 
             if #trees > 0 then
               if vim.bo.filetype == "neo-tree" then vim.cmd "enew" end
@@ -101,7 +89,6 @@ return {
             if should_open_dashboard and vim.bo.filetype ~= "snacks_dashboard" then open_dashboard() end
 
             open_right_tree(file, cwd)
-            restore_right_tree_state()
           end, debug.traceback)
 
           opening_right_tree = false
@@ -115,11 +102,6 @@ return {
         desc = "Open Neo-tree on the right at startup",
       })
 
-      vim.api.nvim_create_autocmd("VimLeavePre", {
-        callback = function() with_neotree_session "save" end,
-        desc = "Save Neo-tree filesystem state",
-      })
-
       vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
         callback = function(args) require("user.temp_file").close_sidebars_for_buffer(args.buf) end,
         desc = "Hide sidebars for temporary files",
@@ -131,7 +113,7 @@ return {
 
       opts.window = opts.window or {}
       opts.window.position = "right"
-      opts.window.width = 30
+      opts.window.width = 40
 
       opts.source_selector = opts.source_selector or {}
       opts.source_selector.winbar = false
@@ -141,7 +123,7 @@ return {
       opts.filesystem.bind_to_cwd = true
       opts.filesystem.follow_current_file = opts.filesystem.follow_current_file or {}
       opts.filesystem.follow_current_file.enabled = true
-      opts.filesystem.follow_current_file.leave_dirs_open = true
+      opts.filesystem.follow_current_file.leave_dirs_open = false
       opts.filesystem.hijack_netrw_behavior = "disabled"
       opts.filesystem.filtered_items = opts.filesystem.filtered_items or {}
       opts.filesystem.commands = opts.filesystem.commands or {}
