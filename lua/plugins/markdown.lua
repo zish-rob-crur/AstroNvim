@@ -36,6 +36,47 @@ local function find_available_port(address, first_port, last_port)
   return assert(try_port(0), "Unable to allocate a port for Markdown live preview")
 end
 
+-- render-markdown has no option for rules between table body rows, which makes
+-- wrapped multi-line rows run together. Patch its table renderer to draw one
+-- above every body row after the first.
+local function add_table_row_separators()
+  local ok, Render = pcall(require, "render-markdown.render.markdown.table")
+  if not ok or Render.zish_row_separators then return end
+  Render.zish_row_separators = true
+
+  local function needs_separator(self, row)
+    return row.node.type ~= "pipe_table_header" and row ~= self.data.rows[2]
+  end
+
+  local function separator(self)
+    local border = self.config.border
+    local parts = vim.tbl_map(function(col) return border[11]:rep(col.width) end, self.data.cols)
+    return border[4] .. table.concat(parts, border[5]) .. border[6]
+  end
+
+  local wrapped_row = Render.wrapped_row
+  Render.wrapped_row = function(self, row)
+    local lines = wrapped_row(self, row)
+    if needs_separator(self, row) then
+      local line = self:line():extend(self.data.prefixes[row.node.start_row]):text(separator(self), self.config.row)
+      table.insert(lines, 1, line:get())
+    end
+    return lines
+  end
+
+  local fitted_row = Render.row
+  Render.row = function(self, row)
+    fitted_row(self, row)
+    if needs_separator(self, row) then
+      local line = self:line():pad(self.data.layout.col):text(separator(self), self.config.row)
+      self.marks:add(self.config, "virtual_lines", row.node.start_row, 0, {
+        virt_lines = { self:indent():line(true):extend(line):get() },
+        virt_lines_above = true,
+      })
+    end
+  end
+end
+
 ---@type LazySpec
 return {
   {
@@ -102,6 +143,7 @@ return {
       },
     },
     config = function(_, opts)
+      add_table_row_separators()
       require("render-markdown").setup(opts)
 
       -- render-markdown links the default inline-code background to ColorColumn,
