@@ -44,11 +44,11 @@ return {
       opts.status.attributes = opts.status.attributes or {}
       opts.status.attributes.buffer_active = { bold = true, italic = false }
       opts.status.colors = function(colors)
-        local current_mode = theme.mode()
-        return vim.tbl_deep_extend("force", colors, {
-          completion_fg = current_mode == "dark" and "#d3c6aa" or "#57606a",
-          completion_bg = current_mode == "dark" and "#343f44" or "#d0d7de",
-        })
+        if theme.mode() == "dark" then
+          local p = theme.palette()
+          return vim.tbl_deep_extend("force", colors, { completion_fg = p.fg, completion_bg = p.bg1 })
+        end
+        return vim.tbl_deep_extend("force", colors, { completion_fg = "#57606a", completion_bg = "#d0d7de" })
       end
 
       theme.setup_auto_sync()

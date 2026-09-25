@@ -39,29 +39,34 @@ function M.configure(mode)
     vim.g.everforest_background = M.background(mode)
     vim.g.everforest_enable_italic = 1
     vim.g.everforest_better_performance = 1
+    vim.g.everforest_pmenu_style = "dim"
+    vim.g.everforest_ui_contrast = "high"
+    vim.g.everforest_dim_inactive_windows = 1
   end
+end
+
+-- Hex colors of the active everforest variant; call only in dark mode, after
+-- everforest has been loaded.
+function M.palette()
+  local palette = vim.fn["everforest#get_palette"](M.dark_background, vim.empty_dict())
+  return vim.tbl_map(function(color) return color[1] end, palette)
 end
 
 function M.highlights(mode)
   mode = mode or M.mode()
   if mode == "dark" then
+    -- The completion menu is styled by everforest itself (`everforest_pmenu_style`).
+    local p = M.palette()
     return {
-      UserPath = { fg = "#7fbbb3", underline = true },
-      BlinkCmpMenu = { fg = "#d3c6aa", bg = "#272e33" },
-      BlinkCmpMenuBorder = { fg = "#4f585e", bg = "#272e33" },
-      BlinkCmpMenuSelection = { fg = "#eee8d5", bg = "#45534b", bold = true },
-      BlinkCmpLabel = { fg = "#d3c6aa" },
-      BlinkCmpLabelMatch = { fg = "#a7c080", bold = true },
-      GitSignsCurrentLineBlame = { fg = "#7fbbb3", bg = "#343f44", italic = true },
+      UserPath = { fg = p.blue, underline = true },
+      GitSignsCurrentLineBlame = { fg = p.blue, bg = p.bg1, italic = true },
     }
   end
 
   return {
     UserPath = { fg = "#0969da", underline = true },
-    BlinkCmpMenu = { fg = "#24292f", bg = "#ffffff" },
     BlinkCmpMenuBorder = { fg = "#d0d7de", bg = "#ffffff" },
     BlinkCmpMenuSelection = { fg = "#24292f", bg = "#ddf4ff", bold = true },
-    BlinkCmpLabel = { fg = "#24292f" },
     BlinkCmpLabelMatch = { fg = "#0969da", bold = true },
     GitSignsCurrentLineBlame = { fg = "#0969da", bg = "#ddf4ff", italic = true },
   }
