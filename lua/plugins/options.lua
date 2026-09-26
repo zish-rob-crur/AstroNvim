@@ -64,6 +64,30 @@ return {
           end,
         },
       }
+      local max_buffers = 6
+      opts.autocmds.limit_open_buffers = {
+        {
+          event = "BufEnter",
+          desc = "Close the least recently used unmodified buffers beyond the limit",
+          callback = function()
+            vim.schedule(function()
+              local buffers = vim.fn.getbufinfo { buflisted = 1 }
+              local excess = #buffers - max_buffers
+              if excess <= 0 then return end
+
+              table.sort(buffers, function(a, b) return a.lastused < b.lastused end)
+              for _, buffer in ipairs(buffers) do
+                if excess == 0 then break end
+                -- Only close file buffers that are saved and not shown in any window.
+                if buffer.changed == 0 and #buffer.windows == 0 and vim.bo[buffer.bufnr].buftype == "" then
+                  pcall(vim.api.nvim_buf_delete, buffer.bufnr, {})
+                  excess = excess - 1
+                end
+              end
+            end)
+          end,
+        },
+      }
       opts.autocmds.copy_unsaved_buffer_on_exit = {
         {
           event = "BufUnload",

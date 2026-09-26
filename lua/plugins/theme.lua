@@ -43,12 +43,54 @@ return {
       opts.status = opts.status or {}
       opts.status.attributes = opts.status.attributes or {}
       opts.status.attributes.buffer_active = { bold = true, italic = false }
+      -- Close buffers with <Leader>c; per-tab close buttons only add clutter.
+      opts.status.components = opts.status.components or {}
+      opts.status.components.tabline_file_info = { close_button = false }
+      -- Give the tabline three distinct backgrounds: the current buffer, buffers
+      -- shown in other windows, and hidden buffers on the tabline strip.
       opts.status.colors = function(colors)
+        local c
         if theme.mode() == "dark" then
           local p = theme.palette()
-          return vim.tbl_deep_extend("force", colors, { completion_fg = p.fg, completion_bg = p.bg1 })
+          c = {
+            completion_fg = p.fg,
+            completion_bg = p.bg1,
+            strip_bg = p.bg_dim,
+            hidden_fg = p.grey1,
+            visible_bg = p.bg2,
+            visible_fg = p.fg,
+            active_bg = p.bg_green,
+            active_fg = p.fg,
+            path_fg = p.grey0,
+          }
+        else
+          c = {
+            completion_fg = "#57606a",
+            completion_bg = "#d0d7de",
+            strip_bg = "#eaeef2",
+            hidden_fg = "#57606a",
+            visible_bg = "#ffffff",
+            visible_fg = "#24292f",
+            active_bg = "#ddf4ff",
+            active_fg = "#0550ae",
+            path_fg = "#6e7781",
+          }
         end
-        return vim.tbl_deep_extend("force", colors, { completion_fg = "#57606a", completion_bg = "#d0d7de" })
+        return vim.tbl_deep_extend("force", colors, {
+          completion_fg = c.completion_fg,
+          completion_bg = c.completion_bg,
+          tabline_bg = c.strip_bg,
+          buffer_bg = c.strip_bg,
+          buffer_fg = c.hidden_fg,
+          buffer_path_fg = c.path_fg,
+          buffer_overflow_bg = c.strip_bg,
+          buffer_visible_bg = c.visible_bg,
+          buffer_visible_fg = c.visible_fg,
+          buffer_visible_path_fg = c.path_fg,
+          buffer_active_bg = c.active_bg,
+          buffer_active_fg = c.active_fg,
+          buffer_active_path_fg = c.active_fg,
+        })
       end
 
       theme.setup_auto_sync()
