@@ -309,6 +309,28 @@ return {
         function() copy_current_file_path(false, true) end,
         desc = "Copy absolute file path with line number",
       }
+      opts.mappings.n["<Leader>?"] = {
+        function()
+          -- A scratch copy: read-only, and gitsigns blame stays out of the float.
+          require("snacks").win {
+            text = vim.fn.readfile(vim.fs.joinpath(vim.fn.stdpath "config", "docs", "keymaps.md")),
+            width = 0.8,
+            height = 0.85,
+            border = "rounded",
+            title = " Keymaps (q to close) ",
+            title_pos = "center",
+            bo = { filetype = "markdown", modifiable = false },
+            wo = { wrap = true, linebreak = true, number = false, signcolumn = "no", spell = false },
+            keys = { q = "close" },
+          }
+        end,
+        desc = "Open the keymap reference",
+      }
+      opts.mappings.n["<Leader>yg"] = { "<Cmd>GitUrlCopy<CR>", desc = "Copy GitLab/GitHub link to line" }
+      opts.mappings.n["<Leader>yG"] = { "<Cmd>GitUrlCopyPermalink<CR>", desc = "Copy GitLab/GitHub permalink to line" }
+      opts.mappings.v["<Leader>y"] = { desc = "Yank/copy" }
+      opts.mappings.v["<Leader>yg"] = { ":GitUrlCopy<CR>", desc = "Copy GitLab/GitHub link to selection" }
+      opts.mappings.v["<Leader>yG"] = { ":GitUrlCopyPermalink<CR>", desc = "Copy GitLab/GitHub permalink to selection" }
     end,
   },
 }

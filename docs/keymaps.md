@@ -4,6 +4,7 @@
 
 ## How To Find Keymaps / 如何查找快捷键
 
+- `<Leader>?`: Open this document in a floating window; `q` closes it. / 在浮动窗口中打开本文档，按 `q` 关闭。
 - `<Leader>fk`: Search all keymaps with the picker. / 使用选择器搜索所有快捷键。
 - Press `<Leader>` directly: wait for `which-key`, then continue with the next key. / 直接按 `<Leader>`：等待 `which-key` 弹出，然后继续输入后续按键。
 - To see where a mapping is defined: use `:verbose nmap <key>`, for example `:verbose nmap <Leader>ff`. / 查看某个映射的定义位置：使用 `:verbose nmap <key>`，例如 `:verbose nmap <Leader>ff`。
@@ -60,14 +61,18 @@ Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like beh
 - `<Leader>fo`: Reveal the current file in Finder, or open the current working directory for unnamed buffers. / 在 Finder 中显示当前文件；如果是未命名缓冲区，则打开当前工作目录。
 - `<Leader>fO`: Find old files in the current working directory. / 查找当前工作目录中的最近文件。
 - `-`: Open the current directory as an editable Oil buffer. / 将当前目录作为可编辑的 Oil 缓冲区打开。
+- `<Leader>E`: Browse files with mini.files (column view, starts at the current file). `l` enters or opens, `h` goes up, `L` opens and closes the browser, `=` applies renames or deletions edited as text, `q` closes, `g?` shows help. / 用 mini.files 多栏浏览，从当前文件所在目录开始。`l` 进入或打开，`h` 返回上级，`L` 打开并关闭浏览器，`=` 应用像编辑文本一样做的改名或删除，`q` 关闭，`g?` 查看帮助。
 - `<Leader>fb`: Find buffers. / 查找缓冲区。
 - `<Leader>fg`: Find changed, staged, and untracked Git files. / 查找已修改、已暂存和未跟踪的 Git 文件。
 - `<Leader>fh`: Find help. / 查找帮助文档。
 - `<Leader>f<CR>`: Resume the previous search. / 恢复上一次搜索。
 - `<Leader>hp`: Preview the current HTML report in the default browser. / 在默认浏览器中预览当前 HTML 报告。
-- `:GitUrlCopy` / `:GitUrlCopyPermalink` / `:GitUrlOpen`: Copy or open the current GitHub/GitLab file URL from the command palette. / 从命令面板复制或打开当前文件的 GitHub/GitLab URL。
+- `<Leader>yg`: Copy the GitLab/GitHub link to the current line, or to the selected lines in Visual mode. The host is read from the repo's `origin` remote, so self-hosted GitLab works. / 复制当前行（可视模式下为选中行）的 GitLab/GitHub 链接。域名从仓库的 `origin` remote 读取，自建 GitLab 也可用。
+- `<Leader>yG`: Same, but a permalink pinned to the current commit. Both need the branch or commit to be pushed. / 同上，但是固定到当前 commit 的永久链接。两者都要求分支或 commit 已推送。
+- `:GitUrlCopy` / `:GitUrlCopyPermalink` / `:GitUrlOpen`: The underlying commands; `:GitUrlOpen` opens the link in the browser. / 底层命令；`:GitUrlOpen` 在浏览器中打开链接。
 - Press Enter in picker results to open the selected file or item. / 在选择器结果中按回车可打开选中的文件或条目。
 - Insert-mode completion includes `./`, `../`, `~/`, command-line paths, and repository-relative paths such as `artifacts/...`; code files complete bare repository paths inside strings, while Markdown/text can complete them directly. / 插入模式补全支持 `./`、`../`、`~/`、命令行路径，以及 `artifacts/...` 这类仓库相对路径；代码文件里裸仓库路径在字符串内补全，Markdown/text 可直接补全。
+
 
 ## Code Structure And Diagnostics / 代码结构与诊断
 
@@ -84,15 +89,17 @@ Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like beh
 
 ### LSP Navigation / LSP 导航
 
-- `gd`: Go to definition. / 跳转到定义。
+- `gd`: Go to definition. A single result jumps directly; several open a picker with a preview pane. / 跳转到定义。只有一个结果时直接跳转，多个结果时打开带预览的选择器。
 - `gD`: Go to declaration. / 跳转到声明。
-- `gI`: Go to implementation. / 跳转到实现。
-- `gy`: Go to type definition. / 跳转到类型定义。
+- `gI`: Go to implementation (picker with preview). / 跳转到实现（带预览的选择器）。
+- `gy`: Go to type definition (picker with preview). / 跳转到类型定义（带预览的选择器）。
+- `grr` / `<Leader>lR`: References in a picker with a preview pane; the current position is excluded. / 在带预览的选择器中列出引用，不含光标当前位置。
+- `<C-o>` / `<C-i>`: Jump back / forward after `gd` and friends. / `gd` 等跳转后返回 / 前进。
 - `K`: Hover documentation. / 悬浮查看文档。
-- `<Leader>lR`: Find references. / 查找引用。
-- `<Leader>lr`: Rename. / 重命名。
-- `<Leader>la`: Code action. / 执行代码操作。
+- `grn` / `<Leader>lr`: Rename. / 重命名。
+- `gra` / `<Leader>la`: Code action. / 执行代码操作。
 - `<Leader>cf`: Format the current buffer with Conform. / 使用 Conform 格式化当前缓冲区。
+- Format on save: an explicit `:w` / `<Leader>w` formats the buffer; auto-save does not. Markdown is never formatted on save, use `<Leader>cf`. / 保存时格式化：手动 `:w` / `<Leader>w` 会格式化，自动保存不会。Markdown 保存时不格式化，需要时用 `<Leader>cf`。
 
 Note: Most LSP mappings are buffer-local and only appear after a language server attaches to the current buffer. Use `<Leader>fk` to confirm available mappings. / 注意：大多数 LSP 映射都是缓冲区局部的，只会在语言服务器附加到当前缓冲区后出现。可使用 `<Leader>fk` 确认可用映射。
 
@@ -101,7 +108,9 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `<M-h/j/k/l>`: Move between Neovim splits and tmux panes with Option/Alt. / 使用 Option/Alt + hjkl 在 Neovim 分屏和 tmux pane 之间移动。
 - `<C-Up/Down/Left/Right>`: Resize splits. / 调整分屏大小。
 - `]b` / `[b`: Next or previous buffer. / 切换到下一个或上一个缓冲区。
-- `<Leader>c`: Close the current buffer. / 关闭当前缓冲区。
+- `<Leader>c`: Close the current buffer (tabline tabs have no close button). / 关闭当前缓冲区（标签栏上没有关闭按钮）。
+- Tabline colors: green background = current buffer, grey = shown in another split, dark = hidden. / 标签栏配色：绿底是当前缓冲区，灰底是在其他分屏中显示的，暗底是后台缓冲区。
+- At most 6 buffers stay open; the least recently used unmodified, unshown ones close automatically. Reopen with `<Leader>ff` or `<Leader>fb`. / 最多保留 6 个缓冲区，最久未看、未修改且不在分屏中显示的会自动关闭，可用 `<Leader>ff` 或 `<Leader>fb` 重新打开。
 - `<Leader>bb`: Pick a buffer from the tabline. / 从标签栏选择缓冲区。
 - `<Leader>bd`: Close a buffer from the tabline. / 从标签栏关闭缓冲区。
 
@@ -114,8 +123,7 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `<Leader>yP`: Copy the current file's absolute path. / 复制当前文件的绝对路径。
 - `<Leader>q`: Quit the current window. / 退出当前窗口。
 - `<Leader>h`: Return to the Home Screen dashboard. / 返回 Home Screen 仪表板。
-- Sessions are auto-saved per current working directory/worktree and auto-loaded only when Neovim starts without arguments; explicit file or directory arguments such as `vim .` are respected, and stale temp-only sessions are skipped. / 会按当前工作目录/worktree 自动保存会话；只有无参数启动 Neovim 时才会自动加载，`vim .` 等显式文件或目录参数会按原意打开目标，旧的仅临时文件会话会被跳过。
-- Neo-tree's current root, expanded directories, and selected node are also saved per current working directory/worktree. / Neo-tree 当前 root、展开目录和选中节点也会按当前工作目录/worktree 保存。
+- Sessions are saved per current working directory/worktree when Neovim quits (`:qa`), and restored when it starts as `vim` or `vim .` in that directory; `vim <file>` does not restore. The last Neovim to quit in a directory wins. / 退出（`:qa`）时按当前工作目录/worktree 保存会话，在该目录下用 `vim` 或 `vim .` 启动时恢复；`vim <文件>` 不恢复。同一目录下最后退出的 Neovim 会覆盖之前的会话。
 - `<Leader>Ss`: Save a named session. / 保存命名会话。
 - `<Leader>SS`: Save the current directory/worktree session. / 保存当前目录/worktree 会话。
 - `<Leader>Sl`: Load the last session. / 加载上一次会话。
@@ -124,13 +132,12 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `<Leader>Sr`: Save session and reload AstroNvim. / 保存会话并重载 AstroNvim。
 - `<Leader>tf` / `<Leader>th` / `<Leader>tv`: ToggleTerm float, horizontal, or vertical terminal. / 打开 ToggleTerm 浮动、水平或垂直终端。
 - `<Leader>gg`: Lazygit in ToggleTerm. / 在 ToggleTerm 中打开 Lazygit。
-- `<Leader>gdd`: Open the Git diff review view with Diffview. / 使用 Diffview 打开 Git 差异审阅视图。
-- `<Leader>gdc`: Close the current Diffview tab. / 关闭当前 Diffview 标签页。
-- `<Leader>gdf`: Focus the Diffview file panel. / 聚焦 Diffview 文件面板。
-- `<Leader>gdt`: Toggle the Diffview file panel. / 切换 Diffview 文件面板。
-- `<Leader>gdr`: Refresh the current Diffview. / 刷新当前 Diffview。
+- `<Leader>gdd`: Open the CodeDiff view of uncommitted changes (working tree vs HEAD). / 用 CodeDiff 查看未提交的改动（工作区 vs HEAD）。
+- `<Leader>gdm`: Review the current branch against the default branch (merge base, like an MR page; includes uncommitted changes). The default branch comes from `origin/HEAD`, else `main` / `master`. / 以 merge-base 为基准查看当前分支相对主分支的全部改动，和 MR 页面一致，包含未提交改动。主分支取 `origin/HEAD`，没有则用 `main` / `master`。
+- `<Leader>gdl`: Commit history of the current branch since the default branch. / 当前分支自主分支以来的提交历史。
 - `<Leader>gdh`: Show Git file history for the repo or selected paths. / 显示仓库或选中路径的 Git 文件历史。
 - `<Leader>gdH`: Show Git history for the current file. / 显示当前文件的 Git 历史。
+- Inside CodeDiff: `q` / `<Leader>gdc` close, `<Leader>gdf` focus the file panel, `<Leader>gdt` toggle it, `R` / `<Leader>gdr` refresh. / CodeDiff 内：`q` / `<Leader>gdc` 关闭，`<Leader>gdf` 聚焦文件面板，`<Leader>gdt` 切换面板，`R` / `<Leader>gdr` 刷新。
 - `]x` / `[x`: Jump to the next or previous Git conflict. / 跳转到下一个或上一个 Git 冲突。
 - `<Leader>gxo`: Resolve the current conflict with ours. / 使用 ours 解决当前冲突。
 - `<Leader>gxt`: Resolve the current conflict with theirs. / 使用 theirs 解决当前冲突。
@@ -158,6 +165,18 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `<Leader>mo`: Toggle the Markdown heading outline with Aerial. / 使用 Aerial 切换 Markdown 标题大纲。
 - `<Leader>mn`: Toggle the Markdown section outline with Aerial. / 使用 Aerial 切换 Markdown 章节大纲。
 - `]m` / `[m`: Jump to the next or previous Markdown heading. / 跳转到下一个或上一个 Markdown 标题。
+
+### Obsidian vaults / Obsidian 笔记库
+
+> Active only under `~/Documents/obsidian/airudder` and `~/Documents/obsidian/zhiwen`. / 仅在这两个 vault 目录下生效。
+
+- Type `[[` to complete note names; `[[##` searches headings across the vault. `gf` on a link follows it. / 输入 `[[` 补全笔记名，`[[##` 搜索整个 vault 的标题；在链接上按 `gf` 跳转。
+- `:Obsidian backlinks`: Notes linking to the current note. / 列出链接到当前笔记的笔记。
+- `:Obsidian rename`: Rename the note and update every link to it. / 重命名笔记并更新所有引用。
+- `:Obsidian extract_note`: Turn the visual selection into a new note and link it. / 把选中内容抽成新笔记并替换为链接。
+- `:Obsidian open`: Open the current note in the Obsidian app. / 在 Obsidian App 中打开当前笔记。
+- `:Obsidian paste_img`: Paste a clipboard image into the vault's attachment folder. / 把剪贴板图片存到 vault 的附件目录。
+- Frontmatter is never rewritten on save; new notes are named after their title. / 保存时不会改写 frontmatter；新笔记以标题命名。
 
 ### Neo-tree / Neo-tree 文件树
 

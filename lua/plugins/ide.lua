@@ -1,3 +1,14 @@
+-- The branch a review is measured against: origin/HEAD if known, else main/master.
+local function default_branch()
+  local ref = vim.fn.systemlist({ "git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD" })[1]
+  if vim.v.shell_error == 0 and ref then return (ref:gsub("^origin/", "")) end
+  for _, name in ipairs { "main", "master" } do
+    vim.fn.system { "git", "rev-parse", "--verify", "--quiet", name }
+    if vim.v.shell_error == 0 then return name end
+  end
+  return "main"
+end
+
 -- IDE-style diagnostics and Git review workflows.
 
 ---@type LazySpec
@@ -20,6 +31,16 @@ return {
     cmd = "CodeDiff",
     keys = {
       { "<Leader>gdd", "<cmd>CodeDiff<CR>", desc = "Open Git diff view" },
+      {
+        "<Leader>gdm",
+        function() vim.cmd("CodeDiff " .. default_branch() .. "...") end,
+        desc = "Review branch against default branch",
+      },
+      {
+        "<Leader>gdl",
+        function() vim.cmd("CodeDiff history " .. default_branch() .. "..HEAD") end,
+        desc = "Branch commits since default branch",
+      },
       { "<Leader>gdh", "<cmd>CodeDiff history<CR>", desc = "Git file history" },
       { "<Leader>gdH", "<cmd>CodeDiff history %<CR>", desc = "Current file history" },
     },

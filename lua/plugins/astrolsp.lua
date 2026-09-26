@@ -87,5 +87,36 @@ return {
       },
       marksman = {},
     },
+    -- Definitions and references go through the snacks picker: a single result
+    -- still jumps straight there, several show a list with a preview pane.
+    mappings = {
+      n = {
+        gd = {
+          function() require("snacks").picker.lsp_definitions() end,
+          desc = "Definition of current symbol",
+          cond = "textDocument/definition",
+        },
+        gy = {
+          function() require("snacks").picker.lsp_type_definitions() end,
+          desc = "Definition of current type",
+          cond = "textDocument/typeDefinition",
+        },
+        gI = {
+          function() require("snacks").picker.lsp_implementations() end,
+          desc = "Implementation of current symbol",
+          cond = "textDocument/implementation",
+        },
+        grr = {
+          function() require("snacks").picker.lsp_references() end,
+          desc = "References of current symbol",
+          cond = "textDocument/references",
+        },
+        ["<Leader>lR"] = {
+          function() require("snacks").picker.lsp_references() end,
+          desc = "Search references",
+          cond = "textDocument/references",
+        },
+      },
+    },
   },
 }

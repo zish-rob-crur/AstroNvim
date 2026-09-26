@@ -66,16 +66,43 @@ return {
         return opts
       end
 
+      -- gitbrowse only knows github.com/gitlab.com/...; treat any other host
+      -- (our self-hosted GitLab) as GitLab, reading the host from the remote.
+      local function with_self_hosted_gitlab(opts)
+        local remote = vim.fn.systemlist({ "git", "-C", vim.fn.expand "%:p:h", "remote", "get-url", "origin" })[1]
+        if vim.v.shell_error ~= 0 or not remote then return opts end
+
+        local repo = snacks.gitbrowse.get_repo(remote)
+        local host = repo:match "^https://([^/]+)"
+        if not host then return opts end
+        for pattern in pairs(snacks.config.get("gitbrowse", {}).url_patterns or {}) do
+          if repo:find(pattern) then return opts end
+        end
+
+        opts.url_patterns = {
+          [vim.pesc(host)] = {
+            branch = "/-/tree/{branch}",
+            file = "/-/blob/{branch}/{file}#L{line_start}-{line_end}",
+            permalink = "/-/blob/{commit}/{file}#L{line_start}-{line_end}",
+            commit = "/-/commit/{commit}",
+          },
+        }
+        return opts
+      end
+
+      local function git_url_opts(command, what)
+        return with_self_hosted_gitlab(with_range(command, { what = what }))
+      end
+
       local function copy_git_url(what)
         return function(command)
-          snacks.gitbrowse(with_range(command, {
-            what = what,
-            open = function(url)
-              vim.fn.setreg("+", url)
-              vim.fn.setreg('"', url)
-              vim.notify(("Copied git URL: %s"):format(url), vim.log.levels.INFO, { title = "Git URL" })
-            end,
-          }))
+          local opts = git_url_opts(command, what)
+          opts.open = function(url)
+            vim.fn.setreg("+", url)
+            vim.fn.setreg('"', url)
+            vim.notify(("Copied git URL: %s"):format(url), vim.log.levels.INFO, { title = "Git URL" })
+          end
+          snacks.gitbrowse(opts)
         end
       end
 
@@ -91,7 +118,7 @@ return {
 
       vim.api.nvim_create_user_command(
         "GitUrlOpen",
-        function(command) snacks.gitbrowse(with_range(command, { what = "file" })) end,
+        function(command) snacks.gitbrowse(git_url_opts(command, "file")) end,
         {
           desc = "Open current file GitHub/GitLab URL in browser",
           range = true,
