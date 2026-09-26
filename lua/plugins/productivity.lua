@@ -34,6 +34,8 @@ return {
   },
   {
     "stevearc/conform.nvim",
+    -- Load before the first write so format_on_save always applies.
+    event = "BufWritePre",
     cmd = "ConformInfo",
     keys = {
       {
@@ -46,10 +48,12 @@ return {
       default_format_opts = {
         lsp_format = "fallback",
       },
-      format_on_save = {
-        lsp_format = "fallback",
-        timeout_ms = 1000,
-      },
+      format_on_save = function(bufnr)
+        -- Markdown here is mostly shared Obsidian notes, where prettier would
+        -- realign every table; format those on demand with <Leader>cf.
+        if vim.bo[bufnr].filetype == "markdown" then return end
+        return { lsp_format = "fallback", timeout_ms = 1000 }
+      end,
       formatters_by_ft = {
         lua = { "stylua" },
         python = { "ruff_format" },
