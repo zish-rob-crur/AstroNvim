@@ -1,6 +1,13 @@
 local DIRSESSION_DIR = "dirsession"
 
-local function startup_has_no_args() return vim.fn.argc(-1) == 0 end
+-- `nvim .` opens the working directory itself, so treat it like a bare `nvim`.
+local function startup_opens_cwd()
+  local argc = vim.fn.argc(-1)
+  if argc == 0 then return true end
+  if argc > 1 then return false end
+  local arg = vim.fs.normalize(vim.fn.fnamemodify(vim.fn.argv(0, -1), ":p"))
+  return arg == vim.fs.normalize(vim.fn.getcwd())
+end
 
 local function save_current_dirsession(notify)
   local ok_resession, resession = pcall(require, "resession")
@@ -14,28 +21,35 @@ local function is_existing_regular_target(path)
   return type(path) == "string" and path ~= "" and (vim.fn.filereadable(path) == 1 or vim.fn.isdirectory(path) == 1)
 end
 
-local function current_dirsession_has_restorable_target()
+-- Returns the first buffer of the current dirsession worth restoring, if any.
+local function current_dirsession_restorable_target()
   local ok_util, util = pcall(require, "resession.util")
   local ok_files, files = pcall(require, "resession.files")
   local ok_temp_file, temp_file = pcall(require, "user.temp_file")
-  if not (ok_util and ok_files and ok_temp_file) then return true end
+  if not (ok_util and ok_files and ok_temp_file) then return nil end
 
   local data = files.load_json_file(util.get_session_file(vim.fn.getcwd(), DIRSESSION_DIR))
-  if not data then return false end
+  if not data then return nil end
 
   for _, buffer in ipairs(data.buffers or {}) do
-    if is_existing_regular_target(buffer.name) and not temp_file.is_path(buffer.name) then return true end
+    if is_existing_regular_target(buffer.name) and not temp_file.is_path(buffer.name) then return buffer.name end
   end
-
-  return false
 end
 
 local function load_current_dirsession()
-  if not startup_has_no_args() then return end
-  if not current_dirsession_has_restorable_target() then return end
+  if not startup_opens_cwd() then return end
+  local target = current_dirsession_restorable_target()
+  if not target then return end
 
   local ok, resession = pcall(require, "resession")
-  if ok then resession.load(vim.fn.getcwd(), { dir = DIRSESSION_DIR, silence_errors = true }) end
+  if not ok then return end
+
+  resession.load(vim.fn.getcwd(), { dir = DIRSESSION_DIR, silence_errors = true })
+
+  -- A session saved without a window layout restores only buffers and leaves an
+  -- empty or directory buffer in view; show a restored file instead.
+  local name = vim.api.nvim_buf_get_name(0)
+  if name == "" or vim.fn.isdirectory(name) == 1 then vim.cmd.edit(vim.fn.fnameescape(target)) end
 end
 
 local function save_session_and_reload()
