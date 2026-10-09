@@ -262,10 +262,11 @@ return {
         find_all_project_files,
         desc = "Find all files",
       }
-      opts.mappings.n["<Leader>fb"] = {
-        function() require("snacks").picker.buffers() end,
-        desc = "Find buffers",
-      }
+      -- Like VS Code's Ctrl+Tab: most recent first, without the current buffer,
+      -- so <CR> right away switches to the previous one.
+      local function switch_buffer() require("snacks").picker.buffers { current = false } end
+      opts.mappings.n["<Leader>fb"] = { switch_buffer, desc = "Switch buffer" }
+      opts.mappings.n["<Leader>,"] = { switch_buffer, desc = "Switch buffer" }
       opts.mappings.n["<Leader>fp"] = false
       opts.mappings.n["<Leader>f/"] = false
       opts.mappings.n["<Leader>fc"] = false

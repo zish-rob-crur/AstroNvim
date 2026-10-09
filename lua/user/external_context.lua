@@ -150,6 +150,8 @@ local function comment_line(line)
   return "# " .. line
 end
 
+function M.text() return load_context() or "" end
+
 function M.comment_block()
   local context = load_context()
   if not context then return "" end

@@ -1,5 +1,12 @@
 local M = {}
 
+function M.is_writing(bufnr)
+  bufnr = bufnr or 0
+  if vim.bo[bufnr].buftype ~= "" then return false end
+  local ft = vim.bo[bufnr].filetype
+  return ft == "markdown" or ft == "text" or ft == "" or vim.b[bufnr].dotagent_enabled == true
+end
+
 local last_trigger = {}
 
 local function line_before_cursor()

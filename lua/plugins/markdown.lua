@@ -185,6 +185,27 @@ return {
     cmd = { "LivePreview" },
     dependencies = { "folke/snacks.nvim" },
     config = function()
+      local template = require "livepreview.template"
+      local md2html = template.md2html
+      template.md2html = function(markdown)
+        local title_script = [[
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const body = document.querySelector(".markdown-body");
+  const filename = decodeURIComponent(window.location.pathname.split("/").pop()) || "Untitled";
+  const updateTitle = () => {
+    const heading = body.querySelector("h1, h2, h3, h4, h5, h6");
+    const title = heading?.textContent.trim().replace(/\s+/g, " ");
+    document.title = "MD | " + (title || filename);
+  };
+  updateTitle();
+  new MutationObserver(updateTitle).observe(body, { childList: true, subtree: true, characterData: true });
+});
+</script>
+]]
+        return (md2html(markdown):gsub("</body>", function() return title_script .. "</body>" end, 1))
+      end
+
       local address = "127.0.0.1"
       local live_preview_config = require "livepreview.config"
       live_preview_config.set {

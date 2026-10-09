@@ -107,12 +107,20 @@ return {
       opts.completion = vim.tbl_deep_extend("force", opts.completion or {}, {
         list = {
           selection = {
-            preselect = true,
+            preselect = function() return not require("user.completion_context").is_writing() end,
             auto_insert = false,
           },
         },
         menu = {
-          auto_show = true,
+          auto_show = function(_, items)
+            if not require("user.completion_context").is_writing() then return true end
+            for _, item in ipairs(items) do
+              if item.source_id == "dotagent" or item.source_id == "path" or item.source_id == "cwd_paths" then
+                return true
+              end
+            end
+            return false
+          end,
           auto_show_delay_ms = 0,
           border = "single",
           max_height = 8,

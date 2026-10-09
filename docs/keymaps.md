@@ -62,7 +62,7 @@ Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like beh
 - `<Leader>fO`: Find old files in the current working directory. / 查找当前工作目录中的最近文件。
 - `-`: Open the current directory as an editable Oil buffer. / 将当前目录作为可编辑的 Oil 缓冲区打开。
 - `<Leader>E`: Browse files with mini.files (column view, starts at the current file). `l` enters or opens, `h` goes up, `L` opens and closes the browser, `=` applies renames or deletions edited as text, `q` closes, `g?` shows help. / 用 mini.files 多栏浏览，从当前文件所在目录开始。`l` 进入或打开，`h` 返回上级，`L` 打开并关闭浏览器，`=` 应用像编辑文本一样做的改名或删除，`q` 关闭，`g?` 查看帮助。
-- `<Leader>fb`: Find buffers. / 查找缓冲区。
+- `<Leader>,` / `<Leader>fb`: Switch buffer, most recently used first and without the current one, so `<CR>` right away goes to the previous buffer; type to filter, `dd` closes the highlighted buffer. / 切换缓冲区：按最近使用排序、不含当前缓冲区，打开后直接回车即切到上一个；可输入过滤，`dd` 关闭选中的缓冲区。
 - `<Leader>fg`: Find changed, staged, and untracked Git files. / 查找已修改、已暂存和未跟踪的 Git 文件。
 - `<Leader>fh`: Find help. / 查找帮助文档。
 - `<Leader>f<CR>`: Resume the previous search. / 恢复上一次搜索。
@@ -110,7 +110,7 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 - `]b` / `[b`: Next or previous buffer. / 切换到下一个或上一个缓冲区。
 - `<Leader>c`: Close the current buffer (tabline tabs have no close button). / 关闭当前缓冲区（标签栏上没有关闭按钮）。
 - Tabline colors: green background = current buffer, grey = shown in another split, dark = hidden. / 标签栏配色：绿底是当前缓冲区，灰底是在其他分屏中显示的，暗底是后台缓冲区。
-- At most 6 buffers stay open; the least recently used unmodified, unshown ones close automatically. Reopen with `<Leader>ff` or `<Leader>fb`. / 最多保留 6 个缓冲区，最久未看、未修改且不在分屏中显示的会自动关闭，可用 `<Leader>ff` 或 `<Leader>fb` 重新打开。
+- At most 6 buffers stay open; the least recently used unmodified, unshown ones close automatically. Reopen closed ones with `<Leader>ff`. / 最多保留 6 个缓冲区，最久未看、未修改且不在分屏中显示的会自动关闭，关掉的可用 `<Leader>ff` 重新打开。
 - `<Leader>bb`: Pick a buffer from the tabline. / 从标签栏选择缓冲区。
 - `<Leader>bd`: Close a buffer from the tabline. / 从标签栏关闭缓冲区。
 
@@ -151,6 +151,9 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 ## AI Completion / AI 补全
 
 - `<Leader>ua`: Toggle Minuet inline completion (DeepSeek). / 开关 Minuet 行内 AI 补全（DeepSeek）。
+- Insert mode: `<C-y>` accepts the AI suggestion, `<M-a>` accepts one line, `<C-]>` dismisses it. / 插入模式：`Ctrl-y` 接受 AI 续写，`Alt-a` 接受一行，`Ctrl-]` 关闭建议。
+- Markdown, plain text and Agent prompt buffers use short prose continuation; code uses FIM completion. / Markdown、纯文本和 Agent 提示词使用简短正文续写，代码使用 FIM 补全。
+- While writing, word candidates stay hidden until `<C-Space>`; file paths and Agent skills still appear automatically. Select a candidate before pressing Enter. / 写作时按 `Ctrl-Space` 查看单词候选；文件路径和 Agent 技能仍自动提示。选择候选后再按回车确认。
 
 ## Markdown / Markdown 编辑
 
@@ -161,6 +164,7 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 
 - `<Leader>mp`: Open the `render-markdown` preview. / 打开 `render-markdown` 预览。
 - `<Leader>mb`: Open the live Markdown browser preview with Mermaid support. / 打开带 Mermaid 支持的 Markdown 实时浏览器预览。
+- Browser tab title: `MD | first heading`, falling back to the filename when there is no heading; updates live. / 浏览器标签页显示 `MD | 第一个标题`，无标题时回退到文件名，并随编辑同步更新。
 - `<Leader>mc`: Close the live Markdown browser preview. / 关闭 Markdown 实时浏览器预览。
 - `<Leader>mo`: Toggle the Markdown heading outline with Aerial. / 使用 Aerial 切换 Markdown 标题大纲。
 - `<Leader>mn`: Toggle the Markdown section outline with Aerial. / 使用 Aerial 切换 Markdown 章节大纲。
