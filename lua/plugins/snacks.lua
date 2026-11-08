@@ -2,7 +2,12 @@ return {
   {
     "folke/snacks.nvim",
     opts = function(_, opts)
-      opts.image = { enabled = false }
+      opts.image = {
+        enabled = true,
+        -- Inline images are overviews; use the image viewer for tall diagrams.
+        doc = { max_width = 120, max_height = 40 },
+        convert = { mermaid = function() return require("user.mermaid").args() end },
+      }
 
       local keys = vim.tbl_get(opts, "dashboard", "preset", "keys")
       if type(keys) == "table" then

@@ -7,6 +7,10 @@ local function set_markdown_nav_keymaps(bufnr)
   map("<Leader>mp", function() require("render-markdown").preview() end, "Markdown preview")
   map("<Leader>mb", "<Cmd>LivePreview start<CR>", "Open Markdown live browser preview")
   map("<Leader>mc", "<Cmd>LivePreview close<CR>", "Close Markdown live browser preview")
+  map("<Leader>m+", function() require("user.mermaid").zoom(40) end, "Enlarge Markdown images")
+  map("<Leader>m-", function() require("user.mermaid").zoom(-40) end, "Shrink Markdown images")
+  map("<Leader>m0", function() require("user.mermaid").zoom(0) end, "Reset Markdown image size")
+  map("<Leader>mv", function() require("user.mermaid").view() end, "Open scrollable image viewer")
   map("<Leader>mo", function() vim.cmd "AerialToggle! left" end, "Markdown heading outline")
   map("<Leader>mn", function() vim.cmd "AerialToggle! left" end, "Markdown section outline")
   map("]m", function() require("aerial").next() end, "Next Markdown heading")
@@ -96,7 +100,18 @@ return {
       local commands = require "typewriter.commands"
       local group = vim.api.nvim_create_augroup("UserMarkdownTypewriter", { clear = true })
       local function sync_typewriter()
-        if vim.bo.buftype == "" and vim.bo.filetype == "markdown" then
+        local markdown = vim.bo.buftype == "" and vim.bo.filetype == "markdown"
+        local has_images = false
+        if markdown then
+          for _, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, -1, false)) do
+            if line:match "^%s*[`~]+%s*mermaid" or line:find "!%[" then
+              has_images = true
+              break
+            end
+          end
+        end
+        -- Centering on source lines skips tall image virtual lines while scrolling.
+        if markdown and not has_images then
           commands.enable_typewriter_mode()
         else
           commands.disable_typewriter_mode()
@@ -106,7 +121,7 @@ return {
       -- Typewriter keeps global CursorMoved/WinScrolled callbacks while it is
       -- active. Tie that global state to the current buffer so a delayed scroll
       -- callback cannot follow a Markdown buffer into a terminal.
-      vim.api.nvim_create_autocmd({ "BufEnter", "TermEnter" }, {
+      vim.api.nvim_create_autocmd({ "BufEnter", "TermEnter", "BufWritePost" }, {
         group = group,
         callback = sync_typewriter,
         desc = "Keep typewriter mode scoped to Markdown buffers",
@@ -138,6 +153,9 @@ return {
         concealcursor = { rendered = "n" },
       },
       code = {
+        -- Snacks attaches diagram virtual lines to the closing fence; hiding
+        -- that entire line also hides the image on Neovim 0.12.
+        border = "thin",
         -- Add a little padding around inline code like `'<Leader>ff'`.
         inline_pad = 1,
       },

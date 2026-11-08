@@ -157,6 +157,10 @@ Note: Most LSP mappings are buffer-local and only appear after a language server
 
 ## Markdown / Markdown 编辑
 
+日常使用 Neovim 编辑、浏览器并排实时预览：`<Leader>mb` 打开，`<Leader>mc` 关闭。复杂 Mermaid 优先在浏览器查看；终端内嵌图作为概览，超长图的滚动问题仍未解决。
+
+- `<Leader>m+` / `<Leader>m-` / `<Leader>m0`: Enlarge / shrink / reset inline previews. / 调整内嵌预览大小；长图请使用独立查看器。
+- `<Leader>mv`: Open the nearest image or Mermaid diagram in a separate tab. / 独立标签页查看当前或最近的图：`j/k` 或 `Ctrl-e/Ctrl-y` 滚动，`+/-/0` 缩放，`zh/zl` 横移，`q` 返回。
 - `:MarkdownCopyRich`: Copy the whole buffer as rich text (macOS + Pandoc). / 将当前整篇 Markdown（含未保存修改）复制为富文本。
 - `:'<,'>MarkdownCopyRich` or `:3,8MarkdownCopyRich`: Copy selected lines or a line range. / 复制可视选区所在行或指定行范围。支持富文本的应用可用 Cmd+V 粘贴；纯文本应用得到去除 Markdown 标记的文本。
 
