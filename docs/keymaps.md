@@ -48,7 +48,6 @@ Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like beh
 
 ## Files And Search / 文件与搜索
 
-- `<C-p>` / `<Leader><Space>`: Find project files, prioritizing the most recently modified files. / 查找项目文件，最近修改的文件优先。
 - `<Leader>p`: Command palette. / 打开命令面板。
 - `<Leader>ss`: Search text in project files. / 在项目文件中全文搜索。
 - `<Leader>sS`: Search text in all project files, including hidden and ignored files. / 在所有项目文件中全文搜索，包括隐藏文件和被忽略文件。
@@ -56,8 +55,8 @@ Note: Flash overrides Vim's native `s` and `S`. Use `cl` for native `s`-like beh
 - `<Leader>sb`: Search text in the current buffer. / 在当前缓冲区中搜索文本。
 - `<Leader>sr`: Search and replace across the project with GrugFar. / 使用 GrugFar 执行项目级查找替换。
 - `<Leader>sR`: Search and replace the word under the cursor with GrugFar. / 使用 GrugFar 查找并替换光标下的词。
-- `<Leader>ff` / `<C-p>`: Find project files; open buffers and recently used files rank first (frecency). / 查找项目文件，已打开和最近使用的文件优先（frecency）。
-- `<Leader>fF`: Find all project files, including hidden and ignored files. / 查找所有项目文件，包括隐藏文件和被忽略文件。
+- `<Leader>ff`: Find project files; open buffers and recently used files rank first (frecency). / 查找项目文件，已打开和最近使用的文件优先（frecency）。
+- `<C-p>`: Find all project files, including hidden and ignored files. / 查找所有项目文件，包括隐藏文件和被忽略文件；仍排除 `.git`、`node_modules`、`.venv` 等依赖和缓存目录。
 - `<Leader>fo`: Reveal the current file in Finder, or open the current working directory for unnamed buffers. / 在 Finder 中显示当前文件；如果是未命名缓冲区，则打开当前工作目录。
 - `<Leader>fO`: Find old files in the current working directory. / 查找当前工作目录中的最近文件。
 - `-`: Open the current directory as an editable Oil buffer. / 将当前目录作为可编辑的 Oil 缓冲区打开。

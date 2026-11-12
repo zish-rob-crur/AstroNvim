@@ -241,8 +241,8 @@ return {
         desc = "Switch to alternate buffer",
       }
       opts.mappings.n["<C-p>"] = {
-        find_project_files,
-        desc = "Find files",
+        find_all_project_files,
+        desc = "Find all files",
       }
       opts.mappings.n["<Leader>p"] = {
         command_palette,
@@ -258,10 +258,7 @@ return {
         find_project_files,
         desc = "Find files",
       }
-      opts.mappings.n["<Leader>fF"] = {
-        find_all_project_files,
-        desc = "Find all files",
-      }
+      opts.mappings.n["<Leader>fF"] = false
       -- Like VS Code's Ctrl+Tab: most recent first, without the current buffer,
       -- so <CR> right away switches to the previous one.
       local function switch_buffer() require("snacks").picker.buffers { current = false } end
