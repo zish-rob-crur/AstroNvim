@@ -18,6 +18,9 @@ function M.is_path(path)
 
   local basename = vim.fs.basename(path) or ""
   if basename:match "^%.tmp" or basename:match "%.tmp$" then return true end
+  -- Antigravity's external editor uses these prompt files. Match the name
+  -- independently of TMPDIR, which may use a different macOS path alias.
+  if basename:match "^jetski%-prompt%-.+%.txt$" then return true end
 
   -- An unset variable would leave a hole that ipairs() stops at, so the list is
   -- built by appending. Codex composes prompts in an editor opened on a file
